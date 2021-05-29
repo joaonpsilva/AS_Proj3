@@ -72,11 +72,9 @@ public class Client_GUI extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Client_GUI().setVisible(true);
-            }
-        });
+        //new Client_GUI().setVisible(true);
+        Client c = new Client();
+        c.connect(3000);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
