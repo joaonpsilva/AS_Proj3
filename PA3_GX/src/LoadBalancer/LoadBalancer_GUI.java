@@ -70,12 +70,12 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new LoadBalancer_GUI().setVisible(true);
-            }
-        });
+        
+        
+
+            // new LoadBalancer_GUI().setVisible(true);
+            LoadBalancer lb = new LoadBalancer();
+            lb.startServer(3000);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
