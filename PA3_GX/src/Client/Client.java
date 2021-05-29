@@ -29,7 +29,6 @@ class Client{
                 System.out.println("Trying to connect to server");
                 clientSocket = new Socket("127.0.0.1",port);        // Load balancer port
                 dout = new DataOutputStream(clientSocket.getOutputStream());
-                connected = true;
                 System.out.println("Connection initiated");
                 
                 // Send message
