@@ -77,21 +77,21 @@ class LoadBalancer{
                     // Send message to server ...
                     // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                     String serverMessage = "request|" + msg[5];
-                    
-                    int port = serverMap.get(0);   // <- TODO change this
+                    int serverId = 0;
+                    int port = serverMap.get(serverId);   // <- TODO change this
                     Socket server = new Socket("127.0.0.1",port);
                     DataOutputStream dout = new DataOutputStream(server.getOutputStream());
                     dout.writeUTF(serverMessage);
                     dout.flush();
                 
-                    // Server response message:  Constante
+                    // Server response message:  server|02|Constante ou server|03|0 (caso erro)
                     DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
                     String serverResponse=dis.readUTF().strip();
                     System.out.print(serverResponse);
                     
                     
                     // Client response
-                    String clientResponse = message.substring(0, message.length() - 3) + serverResponse;
+                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverResponse.split("|")[0] + "|" + msg[5] + "|" + serverResponse.split("|")[1];
                     DataOutputStream clientDout = new DataOutputStream(clientSocket.getOutputStream());
                     clientDout.writeUTF(clientResponse);
                     clientDout.flush();
