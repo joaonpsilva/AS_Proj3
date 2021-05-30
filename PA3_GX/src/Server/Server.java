@@ -33,6 +33,8 @@ class Server{
  
     public Server(){
         
+        for (int i = 0; i < 3; i++)
+            new ServerThread().start();
     }
     
     public void connect(int port){
@@ -61,7 +63,6 @@ class Server{
             while (true) {
                 receivedMessage = dis.readUTF().strip();
                 message = receivedMessage.split("\\|");
-                
                 assert(message[1].equals("HeartBeat"));
                 
                 String responseMsg = "Server|" + serverId + "|HeartBeat";
@@ -86,7 +87,7 @@ class Server{
                 System.out.println("Waiting for clients requests");
                 while (true) {
                     Socket client = serverSocket.accept();
-                    System.out.println("New request: " + client);
+                    System.out.println("New request");
                     //new ClientTask(client).start();
                     boolean a = queue.offer(client);
                     
@@ -112,31 +113,35 @@ class Server{
         
     
     
-    private class ServerTask extends Thread {
-        private ServerTask() {
-            
+    private class ServerThread extends Thread {
+        private ServerThread() {
+            System.out.println("Working Thread Initiated");
+
         }
         @Override
         public void run() {
+            
+            while(true){
+                try{
+                    Socket clientSocket = queue.take();
+                    DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
+                    String  message=dis.readUTF().strip().split("\\|")[1];
+                    int iterations = Integer.parseInt(message);
+                    System.out.println("Received new request. Calculating with iterations: " + iterations);
 
-            try{
-                Socket clientSocket = queue.take();
-                DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
-                String  message=dis.readUTF().strip();
-                int iterations = Integer.parseInt(message);
-                System.out.print(message);
-                
-                String avogradoIteration = avogrado.substring(0, iterations);
-                Thread.sleep(5000 * iterations);
-                
-                DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
-                dout.writeUTF("02|" + avogradoIteration );
-                dout.flush();
-                clientSocket.close();
-            } 
-            catch(Exception e){
-                System.out.println(e);
-            }  
+                    String avogradoIteration = avogrado.substring(0, iterations);
+                    Thread.sleep(5000 * iterations);
+                    
+                    System.out.println("Responding: 02|" + avogradoIteration);
+                    DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
+                    dout.writeUTF("02|" + avogradoIteration );
+                    dout.flush();
+                    clientSocket.close();
+                } 
+                catch(Exception e){
+                    System.out.println(e);
+                }  
+            }
         }    
     }
 }

@@ -66,7 +66,7 @@ class LoadBalancer{
             try{
                 DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
                 String  message=dis.readUTF().strip();
-                System.out.print(message);
+                System.out.println(message);
                 String[] msg = message.split("\\|");
                 
                 
@@ -98,7 +98,7 @@ class LoadBalancer{
                     
                     // Closing connection
                     clientSocket.close();
-                    System.out.print("Connection with client terminated");
+                    System.out.println("Connection with client terminated");
                     
                 }
                 else if(msg[0].equals("monitor")){
@@ -107,7 +107,7 @@ class LoadBalancer{
                     
                     while (true) {
                         message=dis.readUTF().strip();
-                        System.out.print(message);
+                        System.out.println(message);
                         msg = message.split("\\|");
                         updateMonitor(msg);
                     }

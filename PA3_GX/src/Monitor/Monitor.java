@@ -76,14 +76,10 @@ class Monitor{
         public void run() {
             
             // Rec
-            System.out.println("new conn");
             try{
 
                 String  message=dis.readUTF().strip();
                 String[] msg = message.split("\\|");
-                System.out.println(message);
-                for (String s : msg)
-                    System.out.println(s);
 
 
                 if (msg[1].equals("id_request")){     
@@ -94,38 +90,42 @@ class Monitor{
 
             } 
             catch(Exception e){
-                System.out.println(e);
+                System.out.println("ERROR IN RUN " + e);
             }  
         }
         
-        private void informLB(String state, int serverid, int serverport) throws IOException{
+        private void informLB(String state, int serverid, int serverport){
             
-            System.out.println("Telling Load Balancer server connected/disconnected");
+            System.out.println("Telling Load Balancer server " + state);
             
             String msg = "monitor|" + state + "|" + serverid + "|" + serverport;
-            lbdout.writeUTF(msg);  
-            lbdout.flush();  
+            try{
+                lbdout.writeUTF(msg);  
+                lbdout.flush();            
+            }catch(Exception e){System.out.println("ERROR INFORMING LOAD BALANCER");}
+
         }
         
-        private void startHeartBeatProcess() throws SocketException, InterruptedException, IOException{
+        private void startHeartBeatProcess() throws SocketException, IOException{
             //HeartBeat
-            clientSocket.setSoTimeout(2000);    //wait 2 secs for responses
+            clientSocket.setSoTimeout(5000);    //wait 2 secs for responses
+            String responseMsg = "Monitor|HeartBeat";
+
             while (true){
-
-                //send
-                Thread.sleep(1000); //1 sec
-                String responseMsg = "Monitor|HeartBeat";
-                dout.writeUTF(responseMsg);  
-                dout.flush(); 
-
-                //receive
                 try{
+
+                    //send
+                    Thread.sleep(1000); //1 sec
+                    dout.writeUTF(responseMsg);  
+                    dout.flush(); 
+
+                    //receive
                     String beatResponse = dis.readUTF().strip();
                     String[] msg = beatResponse.split("\\|");
                     assert(msg[1].equals(serverId));
                     assert(msg[2].equals("HeartBeat"));
 
-                }catch(SocketTimeoutException e){
+                }catch(Exception e){
 
                     System.out.println("Server " + this.serverId + " disconnected");
 
