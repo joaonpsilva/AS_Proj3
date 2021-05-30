@@ -71,11 +71,11 @@ public class Server_GUI extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Server_GUI().setVisible(true);
-            }
-        });
+
+        //new Server_GUI().setVisible(true);
+        Server server = new Server();
+        server.connect(3001);
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

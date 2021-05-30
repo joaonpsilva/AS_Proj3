@@ -28,11 +28,15 @@ class Monitor{
     
     public Monitor(){}
     
-    public void startServer(int port) throws IOException{
+    public void startServer(int port){
         
-        System.out.println("Connecting to LB");
-        Socket lbSocket = new Socket("127.0.0.1",lbport);
-        this.lbdout = new DataOutputStream(lbSocket.getOutputStream());
+        try{
+                   
+            System.out.println("Connecting to LB");
+            Socket lbSocket = new Socket("127.0.0.1",lbport);
+            this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
+        }catch(Exception e){}
+
         
         
         Runnable serverTask = new Runnable() {
@@ -64,20 +68,26 @@ class Monitor{
 
         private ServerConnection(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
-            DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
-            DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
+            dis=new DataInputStream(clientSocket.getInputStream()); 
+            dout = new DataOutputStream(clientSocket.getOutputStream());
         }
 
         @Override
         public void run() {
             
             // Rec
+            System.out.println("new conn");
             try{
 
                 String  message=dis.readUTF().strip();
-                String[] msg = message.split("|");
-                
-                if (msg[1].equals("id_request")){       
+                String[] msg = message.split("\\|");
+                System.out.println(message);
+                for (String s : msg)
+                    System.out.println(s);
+
+
+                if (msg[1].equals("id_request")){     
+
                     handleIDReq();
                     startHeartBeatProcess();  
                 }
@@ -111,7 +121,7 @@ class Monitor{
                 //receive
                 try{
                     String beatResponse = dis.readUTF().strip();
-                    String[] msg = beatResponse.split("|");
+                    String[] msg = beatResponse.split("\\|");
                     assert(msg[1].equals(serverId));
                     assert(msg[2].equals("HeartBeat"));
 

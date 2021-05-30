@@ -39,10 +39,9 @@ class Server{
         
         boolean connected = false;
         try{
-            System.out.println("Trying to connect to server");
+            System.out.println("Connecting to monitor");
             monitorSocket = new Socket("127.0.0.1",port);        // monitor port
             DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
-            System.out.println("Connection initiated");
 
             // Send id request
             String msg = "Server|id_request";
@@ -51,7 +50,7 @@ class Server{
             
             DataInputStream dis=new DataInputStream(monitorSocket.getInputStream());  
             String receivedMessage = dis.readUTF().strip();
-            String[] message = receivedMessage.split("|");
+            String[] message = receivedMessage.split("\\|");
             System.out.println("Server id: " + message[1]);
             this.serverId = Integer.parseInt(message[1]);
             this.serverport = Integer.parseInt(message[2]);
@@ -61,7 +60,7 @@ class Server{
             //Receive HeartBeats
             while (true) {
                 receivedMessage = dis.readUTF().strip();
-                message = receivedMessage.split("|");
+                message = receivedMessage.split("\\|");
                 
                 assert(message[1].equals("HeartBeat"));
                 
@@ -84,14 +83,16 @@ class Server{
             public void run() {
                 try {
                 ServerSocket serverSocket = new ServerSocket(port);
-                System.out.println("Waiting for clients to connect...");
+                System.out.println("Waiting for clients requests");
                 while (true) {
                     Socket client = serverSocket.accept();
-                    System.out.println("Server connected to: " + client);
+                    System.out.println("New request: " + client);
                     //new ClientTask(client).start();
                     boolean a = queue.offer(client);
                     
                     if (a==false){
+                        System.out.println("Request Denied");
+
                         DataOutputStream dout = new DataOutputStream(client.getOutputStream());
                         dout.writeUTF("03|0");
                         dout.flush();

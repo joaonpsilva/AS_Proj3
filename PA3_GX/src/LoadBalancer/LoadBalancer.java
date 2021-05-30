@@ -34,10 +34,9 @@ class LoadBalancer{
             public void run() {
                 try {
                 ServerSocket serverSocket = new ServerSocket(port);
-                System.out.println("Waiting for clients to connect...");
+                System.out.println("Waiting for connections");
                 while (true) {
                     Socket client = serverSocket.accept();
-                    System.out.println("OIS server connected to: " + client);
                     clientProcessingPool.submit(new ClientTask(client));
                 }
             } 
@@ -62,18 +61,19 @@ class LoadBalancer{
 
         @Override
         public void run() {
-            System.out.println("Connected to client");
             
             // Rec
             try{
                 DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
                 String  message=dis.readUTF().strip();
                 System.out.print(message);
-                String[] msg = message.split("|");
+                String[] msg = message.split("\\|");
                 
                 
                 if (msg[0].equals("client")){
                     
+                    System.out.println("new client request");
+
                     // Send message to server ...
                     // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                     String serverMessage = "request|" + msg[5];
@@ -91,14 +91,14 @@ class LoadBalancer{
                     
                     
                     // Client response
-                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverResponse.split("|")[0] + "|" + msg[5] + "|" + serverResponse.split("|")[1];
+                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverResponse.split("\\|")[0] + "|" + msg[5] + "|" + serverResponse.split("\\|")[1];
                     DataOutputStream clientDout = new DataOutputStream(clientSocket.getOutputStream());
                     clientDout.writeUTF(clientResponse);
                     clientDout.flush();
                     
                     // Closing connection
                     clientSocket.close();
-                    System.out.print("connection with client terminated");
+                    System.out.print("Connection with client terminated");
                     
                 }
                 else if(msg[0].equals("monitor")){
@@ -108,7 +108,7 @@ class LoadBalancer{
                     while (true) {
                         message=dis.readUTF().strip();
                         System.out.print(message);
-                        msg = message.split("|");
+                        msg = message.split("\\|");
                         updateMonitor(msg);
                     }
                 }

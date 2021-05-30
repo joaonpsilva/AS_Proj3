@@ -16,23 +16,24 @@ class Client{
             
     private Socket clientSocket;
     private DataOutputStream dout;
+    private int clientId;
+    private int reqIncr = 0;
 
     public Client(){
-        
-        
+        this.clientId = 6;
     }
     
     public void connect(int port){
         
         boolean connected = false;
         try{
-                System.out.println("Trying to connect to server");
+                System.out.println("Trying to connect to Load Balancer");
                 clientSocket = new Socket("127.0.0.1",port);        // Load balancer port
                 dout = new DataOutputStream(clientSocket.getOutputStream());
                 System.out.println("Connection initiated");
                 
                 // Send message
-                String msg = "MENSAGEM";
+                String msg = "client|" + this.clientId + "|" + this.clientId * 1000 + this.reqIncr + "|00|01|" + 1 + "|0|";
                 dout.writeUTF(msg);  
                 dout.flush();  
                 
