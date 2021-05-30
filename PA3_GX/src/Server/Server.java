@@ -50,7 +50,7 @@ class Server{
             dout.flush();  
             
             DataInputStream dis=new DataInputStream(monitorSocket.getInputStream());  
-            String  receivedMessage = dis.readUTF().strip();
+            String receivedMessage = dis.readUTF().strip();
             String[] message = receivedMessage.split("|");
             System.out.println("Server id: " + message[1]);
             this.serverId = Integer.parseInt(message[1]);
@@ -58,15 +58,22 @@ class Server{
             
             ListenLB(this.serverport);
             
+            //Receive HeartBeats
             while (true) {
-                //Esperar mensagem
-                break;
+                receivedMessage = dis.readUTF().strip();
+                message = receivedMessage.split("|");
+                
+                assert(message[1].equals("HeartBeat"));
+                
+                String responseMsg = "Server|" + serverId + "|HeartBeat";
+                dout.writeUTF(msg);  
+                dout.flush();  
             }
             
         }catch(IOException e){
                 System.err.println("ERROR");
-            }
         }
+    }
     
     
     

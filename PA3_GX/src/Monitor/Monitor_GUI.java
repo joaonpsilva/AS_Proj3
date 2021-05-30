@@ -70,12 +70,11 @@ public class Monitor_GUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Monitor_GUI().setVisible(true);
-            }
-        });
+
+        //new Monitor_GUI().setVisible(true);
+        Monitor monitor = new Monitor();
+        monitor.startServer(3001);
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

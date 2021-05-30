@@ -54,7 +54,7 @@ class LoadBalancer{
     
     
     private class ClientTask implements Runnable {
-    private final Socket clientSocket;
+        private final Socket clientSocket;
 
         private ClientTask(Socket clientSocket) {
             this.clientSocket = clientSocket;
