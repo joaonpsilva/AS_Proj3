@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,6 +27,8 @@ class LoadBalancer{
     private DataOutputStream dout;
     private Map<Integer, ServerInfo> serverMap = new HashMap<Integer, ServerInfo>();
     final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(100);
+    
+    private CountDownLatch ServerCountDownLatch = new CountDownLatch(1);   // To wait until a server is connected before trying to send to servers
 
     public LoadBalancer(){
         
@@ -78,6 +81,14 @@ class LoadBalancer{
                     // Send message to server ...
                     // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                     String serverMessage = "request|" + msg[5];
+                    
+                    
+                    // check if available servers
+                    if (serverMap.size() == 0){
+                        System.out.println("No servers connected, awaiting connection");
+                        ServerCountDownLatch.await();
+                        System.out.println("Server connected returning operations");
+                    }
                     
                     
                     //Get the server with less active Requests
@@ -138,6 +149,7 @@ class LoadBalancer{
                 int server_id = Integer.parseInt(msg[2]);
                 int port = Integer.parseInt(msg[3].strip());
                 serverMap.put(server_id, new ServerInfo(server_id, port));
+                ServerCountDownLatch.countDown();
             }
             else if (msg[1].equals("disconnect")){
                 int server_id = Integer.parseInt(msg[2].strip());

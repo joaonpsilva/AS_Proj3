@@ -72,6 +72,7 @@ public class Monitor_GUI extends javax.swing.JFrame {
 
 
         //new Monitor_GUI().setVisible(true);
+        System.out.println("Monitors");
         Monitor monitor = new Monitor();
         monitor.startServer(3001);
 

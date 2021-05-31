@@ -11,10 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 
@@ -32,24 +29,37 @@ class Server{
     private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
  
     public Server(){
-        
         for (int i = 0; i < 3; i++)
             new ServerThread().start();
     }
     
+    
+    // Connect to monitor and LB
     public void connect(int port){
         
+        int sleepTimer = 1000;
         boolean connected = false;
         try{
             System.out.println("Connecting to monitor");
-            monitorSocket = new Socket("127.0.0.1",port);        // monitor port
-            DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
+            while (!connected){
+                try {
+                    monitorSocket = new Socket("127.0.0.1",port);        // monitor port
+                    connected = true;
+                } catch (IOException e) {
+                    System.err.println("Error connecting to Monitor, trying again in " + sleepTimer/1000 + "  seconds");
+                    Thread.sleep(sleepTimer);
+                }
+            }
+            System.out.println("Connection with monitor estabelished");
 
-            // Send id request
+            
+            // Send ID request
+            DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
             String msg = "Server|id_request";
             dout.writeUTF(msg);  
             dout.flush();  
             
+            // Receive ID 
             DataInputStream dis=new DataInputStream(monitorSocket.getInputStream());  
             String receivedMessage = dis.readUTF().strip();
             String[] message = receivedMessage.split("\\|");
@@ -57,6 +67,7 @@ class Server{
             this.serverId = Integer.parseInt(message[1]);
             this.serverport = Integer.parseInt(message[2]);
             
+            // start thread to connect to LB
             ListenLB(this.serverport);
             
             //Receive HeartBeats
@@ -70,39 +81,38 @@ class Server{
                 dout.flush();  
             }
             
-        }catch(IOException e){
-                System.err.println("ERROR");
+        }catch(Exception e){
+            System.err.println("Error");
+            System.err.println(e);
         }
     }
     
     
     
-    
+    // Listen to LB requests
     public void ListenLB(int port) {
         Runnable serverTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                ServerSocket serverSocket = new ServerSocket(port);
-                System.out.println("Waiting for clients requests");
-                while (true) {
-                    Socket client = serverSocket.accept();
-                    System.out.println("New request");
-                    //new ClientTask(client).start();
-                    boolean a = queue.offer(client);
-                    
-                    if (a==false){
-                        System.out.println("Request Denied");
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    System.out.println("Waiting for clients requests");
+                    while (true) {
+                        Socket client = serverSocket.accept();
+                        System.out.println("New request");
+                        boolean availableSlot = queue.offer(client); // check available slot to handle request
 
-                        DataOutputStream dout = new DataOutputStream(client.getOutputStream());
-                        dout.writeUTF("03|0");
-                        dout.flush();
+                        if (availableSlot==false){
+                            System.out.println("Request Denied - to many requests to handle");
+                            DataOutputStream dout = new DataOutputStream(client.getOutputStream());
+                            dout.writeUTF("03|0");
+                            dout.flush();
+                        }
                     }
-                }
-            } 
-            catch(IOException e){
+                } 
+                catch(IOException e){
 
-            }
+                }
             
             }    
         };  
@@ -112,11 +122,10 @@ class Server{
     }
         
     
-    
+    // Thread that handles client
     private class ServerThread extends Thread {
         private ServerThread() {
             System.out.println("Working Thread Initiated");
-
         }
         @Override
         public void run() {

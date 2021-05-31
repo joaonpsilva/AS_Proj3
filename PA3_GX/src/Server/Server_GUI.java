@@ -73,6 +73,7 @@ public class Server_GUI extends javax.swing.JFrame {
         /* Create and display the form */
 
         //new Server_GUI().setVisible(true);
+        System.out.println("Server");
         Server server = new Server();
         server.connect(3001);
 

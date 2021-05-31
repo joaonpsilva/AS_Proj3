@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -26,19 +26,13 @@ class Monitor{
     private final int lbport = 3000;
     private DataOutputStream lbdout;
     
+    private CountDownLatch LBCountDownLatch = new CountDownLatch(1);   // To prevent monitor from sending messages to lb while not connected
+    
     public Monitor(){}
     
     public void startServer(int port){
-        
-        try{
-                   
-            System.out.println("Connecting to LB");
-            Socket lbSocket = new Socket("127.0.0.1",lbport);
-            this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
-        }catch(Exception e){}
 
-        
-        
+        // Starting Server for server to connect
         Runnable serverTask = new Runnable() {
         @Override
         public void run() {
@@ -47,6 +41,7 @@ class Monitor{
                 System.out.println("Waiting for servers to connect...");
                 while (true) {
                     Socket client = serverSocket.accept();
+                    System.out.println("Connection with server estabelished: " + client);
                     clientProcessingPool.submit(new ServerConnection(client));
                 }
             } 
@@ -54,9 +49,32 @@ class Monitor{
             
             }    
         };  
-        
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
+        
+        
+        // Connecting to LB
+        boolean connectedToLB = false;
+        int sleepTimer = 2000;        
+        System.out.println("Trying to connect to LB");
+        while (!connectedToLB) {
+            try{       
+                Socket lbSocket = new Socket("127.0.0.1",lbport);
+                this.lbdout = new DataOutputStream(lbSocket.getOutputStream());
+                connectedToLB = true;
+            }catch(Exception e){
+                System.err.println("Error connecting to LB, trying again in " + sleepTimer/1000 + "  seconds");
+                try {
+                    Thread.sleep(sleepTimer);
+                } catch (InterruptedException ex) {
+                    System.err.println("Thread error");
+                    System.exit(0);
+                }
+            }
+        }
+        LBCountDownLatch.countDown();
+        System.out.println("Connected to LB");
+        
     }
     
     private class ServerConnection implements Runnable {
@@ -77,7 +95,6 @@ class Monitor{
             
             // Rec
             try{
-
                 String  message=dis.readUTF().strip();
                 String[] msg = message.split("\\|");
 
@@ -94,22 +111,22 @@ class Monitor{
             }  
         }
         
-        private void informLB(String state, int serverid, int serverport){
-            
+        // Inform LB when a connected server changes state (connected/disconnected)
+        private void informLB(String state, int serverid, int serverport) throws InterruptedException{
+            LBCountDownLatch.await();
             System.out.println("Telling Load Balancer server " + state);
-            
             String msg = "monitor|" + state + "|" + serverid + "|" + serverport;
             try{
                 lbdout.writeUTF(msg);  
                 lbdout.flush();            
             }catch(Exception e){
                 System.out.println("ERROR INFORMING LOAD BALANCER");
-                System.out.println(e);
+                System.err.println(e);
             }
 
         }
         
-        private void startHeartBeatProcess() throws SocketException, IOException{
+        private void startHeartBeatProcess() throws SocketException, IOException, InterruptedException{
             //HeartBeat
             clientSocket.setSoTimeout(1000);    //wait 1 secs for responses
             String responseMsg = "Monitor|HeartBeat";
@@ -141,7 +158,7 @@ class Monitor{
             }
         }
         
-        private void handleIDReq() throws IOException{
+        private void handleIDReq() throws IOException, InterruptedException{
             //Get next Id For new server
             try {
                 // garantir acesso em exclusividade

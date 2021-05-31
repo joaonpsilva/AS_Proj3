@@ -9,7 +9,10 @@ package Client;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 class Client{
@@ -26,25 +29,34 @@ class Client{
     public void connect(int port){
         
         boolean connected = false;
+        int sleepTimer = 1000;
+        System.out.println("Trying to connect to Load Balancer");
         try{
-                System.out.println("Trying to connect to Load Balancer");
-                clientSocket = new Socket("127.0.0.1",port);        // Load balancer port
-                dout = new DataOutputStream(clientSocket.getOutputStream());
-                System.out.println("Connection initiated");
-                
-                // Send message
-                String msg = "client|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + 1 + "|0|";
-                dout.writeUTF(msg);  
-                dout.flush();  
-                
-                //Receive message
-                DataInputStream dis=new DataInputStream(clientSocket.getInputStream());  
-                String  receivedMessage = dis.readUTF().strip();
-                System.out.println(receivedMessage);
-                
-        }catch(IOException e){
-                System.err.println("");
-                }
+            clientSocket = new Socket("127.0.0.1",port);        // Load balancer port
+            dout = new DataOutputStream(clientSocket.getOutputStream());
+            System.out.println("Connection initiated");
 
+            // Send message
+            String msg = "client|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + 1 + "|0|";
+            dout.writeUTF(msg);  
+            dout.flush();  
+
+            //Receive message
+            DataInputStream dis=new DataInputStream(clientSocket.getInputStream());  
+            String  receivedMessage = dis.readUTF().strip();
+            System.out.println(receivedMessage);
+                
+        }catch(ConnectException e){
+            System.err.println("Failed to connect to Load Balancer trying again in " + sleepTimer/1000 + " seconds");
+            connect(port);
+            try {
+                Thread.sleep(sleepTimer);
+            } catch (InterruptedException ex) {
+                System.err.println("Thread error");
+                System.exit(1);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
