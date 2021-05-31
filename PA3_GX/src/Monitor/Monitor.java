@@ -111,7 +111,7 @@ class Monitor{
         
         private void startHeartBeatProcess() throws SocketException, IOException{
             //HeartBeat
-            clientSocket.setSoTimeout(5000);    //wait 2 secs for responses
+            clientSocket.setSoTimeout(1000);    //wait 1 secs for responses
             String responseMsg = "Monitor|HeartBeat";
 
             while (true){
@@ -129,7 +129,6 @@ class Monitor{
                     assert(msg[2].equals("HeartBeat"));
 
                 }catch(Exception e){
-
                     System.out.println("Server " + this.serverId + " disconnected");
 
                     clientSocket.close();
