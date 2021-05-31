@@ -72,22 +72,23 @@ class LoadBalancer{
                 
                 if (msg[0].equals("client")){
                     
-                    System.out.println("new client request");
-
                     // Send message to server ...
                     // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                     String serverMessage = "request|" + msg[5];
                     int serverId = 0;
                     int port = serverMap.get(serverId);   // <- TODO change this
+                    System.out.println("New client request. Sending it to server " + serverId);
+                    
                     Socket server = new Socket("127.0.0.1",port);
                     DataOutputStream dout = new DataOutputStream(server.getOutputStream());
                     dout.writeUTF(serverMessage);
                     dout.flush();
                 
-                    // Server response message:  server|02|Constante ou server|03|0 (caso erro)
+                    // Server response message:  server|02|Constante ou server|03|0 (caso erro
+
                     DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
-                    String serverResponse=dis.readUTF().strip();
-                    System.out.print(serverResponse);
+                    String serverResponse=server_dis.readUTF().strip();
+                    System.out.println("Received: " + serverResponse + " from server " + serverId);
                     
                     
                     // Client response

@@ -29,7 +29,7 @@ class Server{
     private static int serverId;
     private static int serverport;
     private static String avogrado = "602214076";
-    private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(5);
+    private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
  
     public Server(){
         
@@ -127,7 +127,7 @@ class Server{
                     DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
                     String  message=dis.readUTF().strip().split("\\|")[1];
                     int iterations = Integer.parseInt(message);
-                    System.out.println("Received new request. Calculating with iterations: " + iterations);
+                    System.out.println("Viewing request. Calculating with iterations: " + iterations);
 
                     String avogradoIteration = avogrado.substring(0, iterations);
                     Thread.sleep(5000 * iterations);
@@ -137,6 +137,7 @@ class Server{
                     dout.writeUTF("02|" + avogradoIteration );
                     dout.flush();
                     clientSocket.close();
+
                 } 
                 catch(Exception e){
                     System.out.println(e);

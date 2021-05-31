@@ -33,7 +33,7 @@ class Client{
                 System.out.println("Connection initiated");
                 
                 // Send message
-                String msg = "client|" + this.clientId + "|" + this.clientId * 1000 + this.reqIncr + "|00|01|" + 1 + "|0|";
+                String msg = "client|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + 1 + "|0|";
                 dout.writeUTF(msg);  
                 dout.flush();  
                 

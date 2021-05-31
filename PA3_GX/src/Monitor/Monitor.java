@@ -102,7 +102,10 @@ class Monitor{
             try{
                 lbdout.writeUTF(msg);  
                 lbdout.flush();            
-            }catch(Exception e){System.out.println("ERROR INFORMING LOAD BALANCER");}
+            }catch(Exception e){
+                System.out.println("ERROR INFORMING LOAD BALANCER");
+                System.out.println(e);
+            }
 
         }
         
@@ -146,6 +149,8 @@ class Monitor{
                 rl.lock();
                 this.serverId = serverIds;
                 this.serverPort = server_ports;
+                serverIds++;
+                server_ports++;
             } catch ( Exception ex ) {}
             finally {
                 rl.unlock();
