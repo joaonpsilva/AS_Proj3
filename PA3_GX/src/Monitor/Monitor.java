@@ -13,6 +13,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,17 +28,18 @@ class Monitor{
     private final ReentrantLock rl = new ReentrantLock( true );
     private final int lbport = 3000;
     private DataOutputStream lbdout;
-    
+    private Map<Integer, ServerInfo> serverMap = new HashMap<Integer, ServerInfo>();
+
     public Monitor(){}
     
     public void startServer(int port){
         
-        try{
+        /*try{
                    
             System.out.println("Connecting to LB");
             Socket lbSocket = new Socket("127.0.0.1",lbport);
             this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
-        }catch(Exception e){}
+        }catch(Exception e){}*/
 
         
         
@@ -47,7 +51,7 @@ class Monitor{
                 System.out.println("Waiting for servers to connect...");
                 while (true) {
                     Socket client = serverSocket.accept();
-                    clientProcessingPool.submit(new ServerConnection(client));
+                    clientProcessingPool.submit(new Connection(client));
                 }
             } 
             catch(IOException e){}
@@ -59,14 +63,14 @@ class Monitor{
         serverThread.start();
     }
     
-    private class ServerConnection implements Runnable {
+    private class Connection implements Runnable {
         private final Socket clientSocket;
         private int serverId;
         private int serverPort;
         private DataInputStream dis;
         private DataOutputStream dout;
 
-        private ServerConnection(Socket clientSocket) throws IOException {
+        private Connection(Socket clientSocket) throws IOException {
             this.clientSocket = clientSocket;
             dis=new DataInputStream(clientSocket.getInputStream()); 
             dout = new DataOutputStream(clientSocket.getOutputStream());
@@ -81,11 +85,34 @@ class Monitor{
                 String  message=dis.readUTF().strip();
                 String[] msg = message.split("\\|");
 
+                if (msg[0].equals("Server")){
+                    
+                    if (msg[1].equals("id_request")){     
 
-                if (msg[1].equals("id_request")){     
-
-                    handleIDReq();
-                    startHeartBeatProcess();  
+                        handleIDReq();
+                        startHeartBeatProcess();  
+                    }
+                }
+                else if ( msg[0].equals("LoadBalancer")){
+                    
+                    if (msg[1].equals("serverInfo")){     
+                        String response = "Monitor";
+                        
+                        Iterator it = serverMap.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry pair = (Map.Entry)it.next();
+                            response += "|" + pair.getValue().toString();
+                        }
+                        dout.writeUTF(response);
+                        dout.flush();
+                    }
+                    
+                    else if (msg[1].equals("sentMessage")){
+                        
+                    }
+                    else if (msg[1].equals("ReceivedMessage")){
+                        
+                    }
                 }
 
             } 
@@ -94,7 +121,7 @@ class Monitor{
             }  
         }
         
-        private void informLB(String state, int serverid, int serverport){
+        /*private void informLB(String state, int serverid, int serverport){
             
             System.out.println("Telling Load Balancer server " + state);
             
@@ -107,7 +134,7 @@ class Monitor{
                 System.out.println(e);
             }
 
-        }
+        }*/
         
         private void startHeartBeatProcess() throws SocketException, IOException{
             //HeartBeat
@@ -132,9 +159,11 @@ class Monitor{
                     System.out.println("Server " + this.serverId + " disconnected");
 
                     clientSocket.close();
+                    
+                    serverMap.remove(this.serverId);
 
                     //informLB
-                    informLB("disconnect", serverId, serverPort);
+                    //informLB("disconnect", serverId, serverPort);
 
                     return;
                 }                    
@@ -156,14 +185,17 @@ class Monitor{
             }
 
             System.out.println("New server connection. Giving id: " + this.serverId );
+            serverMap.put(serverId, new ServerInfo(serverId, serverPort));
 
+            
             //respond to server
             String responseMsg = "Monitor|" + serverId + "|" + serverPort;
             dout.writeUTF(responseMsg);  
             dout.flush(); 
 
             //inform LB
-            informLB("connect", serverId, serverPort);
+            //informLB("connect", serverId, serverPort);
+            
         }
         
         
