@@ -26,22 +26,15 @@ class Monitor{
     private int serverIds = 0;
     private int server_ports = 4000;
     private final ReentrantLock rl = new ReentrantLock( true );
-    private final int lbport = 3000;
+    private final int lbport = 2999;
     private DataOutputStream lbdout;
+    private DataInputStream lbin;
+
     private Map<Integer, ServerInfo> serverMap = new HashMap<Integer, ServerInfo>();
 
     public Monitor(){}
     
-    public void startServer(int port){
-        
-        /*try{
-                   
-            System.out.println("Connecting to LB");
-            Socket lbSocket = new Socket("127.0.0.1",lbport);
-            this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
-        }catch(Exception e){}*/
-
-        
+    public void startServer(int port){        
         
         Runnable serverTask = new Runnable() {
         @Override
@@ -61,6 +54,46 @@ class Monitor{
         
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
+        
+        this.listenToLB();
+    }
+    
+    private void listenToLB(){
+        
+        try{       
+            System.out.println("Connecting to LB");
+            Socket lbSocket = new Socket("127.0.0.1",lbport);
+            this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
+            this.lbin = new DataInputStream(lbSocket.getInputStream()); 
+            
+            while (true){
+                String lbMessage = lbin.readUTF().strip();
+                String[] msg = lbMessage.split("\\|");
+                
+                assert(msg[0].equals("LoadBalancer"));
+                    
+                if (msg[1].equals("serverInfo")){     
+                    String response = "Monitor";
+
+                    Iterator it = serverMap.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry pair = (Map.Entry)it.next();
+                        response += "|" + pair.getValue().toString();
+                    }
+                    lbdout.writeUTF(response);
+                    lbdout.flush();
+                }
+
+                else if (msg[1].equals("sentMessage")){
+                    System.out.println(lbMessage);
+                }
+                else if (msg[1].equals("ReceivedMessage")){
+                    System.out.println(lbMessage);
+                }
+            }
+            
+            
+        }catch(Exception e){}
     }
     
     private class Connection implements Runnable {
@@ -93,48 +126,12 @@ class Monitor{
                         startHeartBeatProcess();  
                     }
                 }
-                else if ( msg[0].equals("LoadBalancer")){
-                    
-                    if (msg[1].equals("serverInfo")){     
-                        String response = "Monitor";
-                        
-                        Iterator it = serverMap.entrySet().iterator();
-                        while (it.hasNext()) {
-                            Map.Entry pair = (Map.Entry)it.next();
-                            response += "|" + pair.getValue().toString();
-                        }
-                        dout.writeUTF(response);
-                        dout.flush();
-                    }
-                    
-                    else if (msg[1].equals("sentMessage")){
-                        
-                    }
-                    else if (msg[1].equals("ReceivedMessage")){
-                        
-                    }
-                }
 
             } 
             catch(Exception e){
                 System.out.println("ERROR IN RUN " + e);
             }  
         }
-        
-        /*private void informLB(String state, int serverid, int serverport){
-            
-            System.out.println("Telling Load Balancer server " + state);
-            
-            String msg = "monitor|" + state + "|" + serverid + "|" + serverport;
-            try{
-                lbdout.writeUTF(msg);  
-                lbdout.flush();            
-            }catch(Exception e){
-                System.out.println("ERROR INFORMING LOAD BALANCER");
-                System.out.println(e);
-            }
-
-        }*/
         
         private void startHeartBeatProcess() throws SocketException, IOException{
             //HeartBeat

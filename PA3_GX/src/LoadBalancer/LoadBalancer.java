@@ -19,41 +19,53 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 class LoadBalancer{
             
-    private Socket clientSocket;
-    private DataOutputStream dout;
-    private Map<Integer, ServerInfo> serverMap = new HashMap<Integer, ServerInfo>();
     final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(100);
     private final int monitorPort = 3001;
-    
-    public LoadBalancer(){
-        
-    }
+    private DataOutputStream monitorout;
+    private DataInputStream monitorin;
+    private final ReentrantLock rl = new ReentrantLock( true );
+
+    public LoadBalancer(){}
     
     public void startServer(int port) {
         Runnable serverTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                ServerSocket serverSocket = new ServerSocket(port);
-                System.out.println("Waiting for connections");
-                while (true) {
-                    Socket client = serverSocket.accept();
-                    clientProcessingPool.submit(new ClientTask(client));
-                }
-            } 
-            catch(IOException e){
-
-            }
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    System.out.println("Waiting for connections");
+                    while (true) {
+                        Socket client = serverSocket.accept();
+                        clientProcessingPool.submit(new ClientTask(client));
+                    }
+                } 
+                catch(IOException e){}
             
             }    
         };  
         
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
+        
+        
+        try {
+            ServerSocket serverSocket = new ServerSocket(2999);
+            System.out.println("Waiting for Monitor");
+            Socket monitorSocket = serverSocket.accept();
+            monitorout = new DataOutputStream(monitorSocket.getOutputStream());
+            monitorin = new DataInputStream(monitorSocket.getInputStream()); 
+        }
+        catch(IOException e){
+
+        }
+        
     }
     
     
@@ -89,11 +101,7 @@ class LoadBalancer{
                 System.out.println("new client request");
                 
                 //MAKE CONNECTION WITH MONITOR
-                Socket monitor;
-                DataOutputStream monitor_dout;
-                DataInputStream monitor_dis;
                 boolean serverNotCrashed = false;
-                
                 while (!serverNotCrashed){
                     
                     int serverId = -1;
@@ -102,22 +110,19 @@ class LoadBalancer{
                     try{
                     
                         //ask monitor for servers status
-                        monitor = new Socket("127.0.0.1", monitorPort);
-                        monitor_dout = new DataOutputStream(monitor.getOutputStream());
-                        monitor_dis=new DataInputStream(monitor.getInputStream());
-                        
                         System.out.println("Asking server status");
-                        //send message to monitor
+                        
                         String monitorMessage = "LoadBalancer|serverInfo";
-                        monitor_dout.writeUTF(monitorMessage);
-                        monitor_dout.flush();
-
+                        
+                        rl.lock();
+                        monitorout.writeUTF(monitorMessage);
+                        monitorout.flush();
                         //receive message from monitor
                         //monitor|serverID, serverPort, ActiveReqs|....
-                        String monitorResponse[] = monitor_dis.readUTF().strip().split("\\|");
+                        String monitorResponse[] = monitorin.readUTF().strip().split("\\|");
+                        rl.unlock();
                         
                         System.out.println("There are " + (monitorResponse.length -1) + " online servers");
-
                         //Get the server with less active Requests
                         serverId = -1;
                         serverport = -1;
@@ -141,8 +146,10 @@ class LoadBalancer{
                         
                         //INFORM MONITOR ABOUT CHOSEN SERVER
                         monitorMessage = "LoadBalancer|sentMessage|" + message;
-                        monitor_dout.writeUTF(monitorMessage);
-                        monitor_dout.flush();
+                        rl.lock();
+                        monitorout.writeUTF(monitorMessage);
+                        monitorout.flush();
+                        rl.unlock();
                         
                     }catch(Exception e){
                         System.out.println("Error connecting with monitor");
@@ -167,10 +174,14 @@ class LoadBalancer{
                         serverResponse=server_dis.readUTF().strip();
                         System.out.println("Received: " + serverResponse + " from server " + serverId);
                         serverNotCrashed = true;
+                        server.close();
                         
                     }catch(Exception e){
                         System.out.println("Server crashed. Choosing another server");
-
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException ex) {
+                        }
                         continue;
                     } 
                     
@@ -178,9 +189,11 @@ class LoadBalancer{
                     
                     try{
                         //INFORM MONITOR ABOUT CHOSEN SERVER
+                        rl.lock();
                         String monitorMessage = "LoadBalancer|ReceivedMessage|" + clientResponse;
-                        monitor_dout.writeUTF(monitorMessage);
-                        monitor_dout.flush();
+                        monitorout.writeUTF(monitorMessage);
+                        monitorout.flush();
+                        rl.unlock();
                     }catch(Exception e){
                         System.out.println("Error connecting with monitor");
                         return;
@@ -205,37 +218,9 @@ class LoadBalancer{
  
                 }
             }
-                /*else if(msg[0].equals("monitor")){
-                    
-                    updateMonitor(msg);
-                    
-                    while (true) {
-                        message=dis.readUTF().strip();
-                        System.out.println(message);
-                        msg = message.split("\\|");
-                        updateMonitor(msg);
-                    }
-                }*/
-            
         }
         
-        
-        
-        /*public void updateMonitor(String[] msg) throws IOException{
-            
-            // msg example: monitor|conection|server id|server port
-            if (msg[1].equals("connect")){
-                int server_id = Integer.parseInt(msg[2]);
-                int port = Integer.parseInt(msg[3].strip());
-                serverMap.put(server_id, new ServerInfo(server_id, port));
-            }
-            else if (msg[1].equals("disconnect")){
-                int server_id = Integer.parseInt(msg[2].strip());
-                int port = Integer.parseInt(msg[3]);
-                serverMap.remove(server_id);
-                // TODO resend to another server
-            }            
-        }*/
+
         
     }
     
