@@ -21,34 +21,43 @@ class Client{
     private DataOutputStream dout;
     private int clientId;
     private int reqIncr = 0;
+    private Client_GUI clientUI;
 
     public Client(){
         this.clientId = 6;
     }
     
-    public void connect(int port){
+    public Client(Client_GUI ui){
+        this.clientId = 6;
+        this.clientUI = ui;
+    }
+    
+    
+    public void connect(String address, int port){
         
         boolean connected = false;
         int sleepTimer = 1000;
         System.out.println("Trying to connect to Load Balancer");
         try{
-            clientSocket = new Socket("127.0.0.1",port);        // Load balancer port
+            clientSocket = new Socket(address,port);        // Load balancer port
             dout = new DataOutputStream(clientSocket.getOutputStream());
             System.out.println("Connection initiated");
 
             // Send message
             String msg = "client|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + 1 + "|0|";
             dout.writeUTF(msg);  
-            dout.flush();  
+            dout.flush(); 
+            clientUI.messageStatusLabel.setVisible(true);
 
             //Receive message
             DataInputStream dis=new DataInputStream(clientSocket.getInputStream());  
             String  receivedMessage = dis.readUTF().strip();
             System.out.println(receivedMessage);
+            clientUI.receivedMessageTextField.setText(receivedMessage);
                 
         }catch(ConnectException e){
             System.err.println("Failed to connect to Load Balancer trying again in " + sleepTimer/1000 + " seconds");
-            connect(port);
+            connect(address, port);
             try {
                 Thread.sleep(sleepTimer);
             } catch (InterruptedException ex) {
