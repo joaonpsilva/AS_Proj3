@@ -30,7 +30,8 @@ class Server{
  
     public Server(){
         for (int i = 0; i < 3; i++)
-            new ServerThread().start();
+            //new ServerThread().start();
+            new ServerThread(i).start();
     }
     
     
@@ -124,8 +125,10 @@ class Server{
     
     // Thread that handles client
     private class ServerThread extends Thread {
-        private ServerThread() {
+        private int id;
+        private ServerThread(int i) {
             System.out.println("Working Thread Initiated");
+            this.id = i;
         }
         @Override
         public void run() {

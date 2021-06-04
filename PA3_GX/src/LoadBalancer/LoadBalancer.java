@@ -27,11 +27,15 @@ class LoadBalancer{
     private DataOutputStream dout;
     private Map<Integer, ServerInfo> serverMap = new HashMap<Integer, ServerInfo>();
     final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(100);
+    private LoadBalancer_GUI ui;
     
     private CountDownLatch ServerCountDownLatch = new CountDownLatch(1);   // To wait until a server is connected before trying to send to servers
 
     public LoadBalancer(){
-        
+    }
+    
+    public LoadBalancer(LoadBalancer_GUI ui){
+        this.ui = ui;
     }
     
     public void startServer(int port) {
@@ -47,9 +51,7 @@ class LoadBalancer{
                 }
             } 
             catch(IOException e){
-
             }
-            
             }    
         };  
         
@@ -73,6 +75,7 @@ class LoadBalancer{
                 DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
                 String  message=dis.readUTF().strip();
                 System.out.println(message);
+                ui.addMessage(message);
                 String[] msg = message.split("\\|");
                 
                 
@@ -81,6 +84,7 @@ class LoadBalancer{
                     // Send message to server ...
                     // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                     String serverMessage = "request|" + msg[5];
+                    System.out.println(serverMessage);
                     
                     
                     // check if available servers
@@ -108,6 +112,7 @@ class LoadBalancer{
                     // Server response message:  server|02|Constante ou server|03|0 (caso erro
                     DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
                     String serverResponse=server_dis.readUTF().strip();
+                    ui.addMessage(serverResponse);
                     choosenServer.endReq();
                     System.out.println("Received: " + serverResponse + " from server " + serverId);
                     
@@ -130,6 +135,7 @@ class LoadBalancer{
                     while (true) {
                         message=dis.readUTF().strip();
                         System.out.println(message);
+                        ui.addMessage(message);
                         msg = message.split("\\|");
                         updateMonitor(msg);
                     }

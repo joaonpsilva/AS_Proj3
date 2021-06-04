@@ -84,7 +84,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="MessageTextField" min="-2" pref="104" max="-2" attributes="0"/>
+                          <Component id="incrementationsTextField" min="-2" pref="104" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="messageStatusLabel" min="-2" pref="133" max="-2" attributes="0"/>
                       </Group>
@@ -132,7 +132,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jButton1" min="-2" pref="28" max="-2" attributes="0"/>
                       <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                          <Component id="MessageTextField" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
+                          <Component id="incrementationsTextField" alignment="3" min="-2" pref="28" max="-2" attributes="0"/>
                           <Component id="messageStatusLabel" alignment="3" min="-2" pref="21" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -206,7 +206,7 @@
             <Property name="text" type="java.lang.String" value="Message to send"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="MessageTextField">
+        <Component class="javax.swing.JTextField" name="incrementationsTextField">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor" postCode="Random rn = new Random();">
               <Font name="Tahoma" size="12" style="0"/>
@@ -215,6 +215,9 @@
               <Connection code="Integer.toString(rn.nextInt(11))" type="code"/>
             </Property>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JLabel" name="messageStatusLabel">
           <Properties>
