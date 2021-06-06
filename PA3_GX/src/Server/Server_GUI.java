@@ -314,6 +314,9 @@ public class Server_GUI extends javax.swing.JFrame {
             }
         ));
         jScrollPane2.setViewportView(clientMessageTable);
+        if (clientMessageTable.getColumnModel().getColumnCount() > 0) {
+            clientMessageTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        }
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel11.setText("Client Message Log");
@@ -334,7 +337,7 @@ public class Server_GUI extends javax.swing.JFrame {
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 7, Short.MAX_VALUE))
         );
         threadPanelLayout.setVerticalGroup(
             threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -381,6 +384,9 @@ public class Server_GUI extends javax.swing.JFrame {
             }
         ));
         jScrollPane1.setViewportView(monitorMessageTable);
+        if (monitorMessageTable.getColumnModel().getColumnCount() > 0) {
+            monitorMessageTable.getColumnModel().getColumn(0).setMaxWidth(80);
+        }
 
         jLabel12.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel12.setText("Monitor Message Log");
@@ -404,21 +410,23 @@ public class Server_GUI extends javax.swing.JFrame {
                         .addGap(49, 49, 49)
                         .addComponent(jLabel10))
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 28, 28)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(monitorPaneLayout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(monitorPaneLayout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, monitorPaneLayout.createSequentialGroup()
-                    .addContainerGap(201, Short.MAX_VALUE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(190, 190, 190)))
         );
         monitorPaneLayout.setVerticalGroup(
             monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(monitorPaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(monitorPaneLayout.createSequentialGroup()
                         .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -429,14 +437,8 @@ public class Server_GUI extends javax.swing.JFrame {
                             .addComponent(portTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel9)
                             .addComponent(addressTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 64, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap())
-            .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(monitorPaneLayout.createSequentialGroup()
-                    .addGap(21, 21, 21)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(107, Short.MAX_VALUE)))
+                        .addContainerGap(80, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout runningPanelLayout = new javax.swing.GroupLayout(runningPanel);

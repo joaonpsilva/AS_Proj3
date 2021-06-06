@@ -23,15 +23,21 @@ class Monitor{
     private int serverIds = 0;
     private int server_ports = 4000;
     private final ReentrantLock rl = new ReentrantLock( true );
-    private final int lbport = 3000;
+    private int lbport = 3000; // default value (can change)
     private DataOutputStream lbdout;
+    private Monitor_GUI ui;
     
     private CountDownLatch LBCountDownLatch = new CountDownLatch(1);   // To prevent monitor from sending messages to lb while not connected
     
     public Monitor(){}
     
-    public void startServer(int port){
-
+    public Monitor(Monitor_GUI ui){
+        this.ui = ui;
+    }
+    
+    public void startServer(int port, int lbport){
+        
+        this.lbport = lbport;
         // Starting Server for server to connect
         Runnable serverTask = new Runnable() {
         @Override
@@ -74,6 +80,7 @@ class Monitor{
         }
         LBCountDownLatch.countDown();
         System.out.println("Connected to LB");
+        ui.addLBMessage("--|connected to Load Balancer");
         
     }
     
@@ -116,12 +123,14 @@ class Monitor{
             LBCountDownLatch.await();
             System.out.println("Telling Load Balancer server " + state);
             String msg = "monitor|" + state + "|" + serverid + "|" + serverport;
+            ui.addLBMessage(msg);
             try{
                 lbdout.writeUTF(msg);  
                 lbdout.flush();            
             }catch(Exception e){
                 System.out.println("ERROR INFORMING LOAD BALANCER");
                 System.err.println(e);
+                ui.addLBMessage("Error|error informing lb: "+ msg);
             }
 
         }
@@ -138,17 +147,19 @@ class Monitor{
                     Thread.sleep(1000); //1 sec
                     dout.writeUTF(responseMsg);  
                     dout.flush(); 
+                    ui.addHeartBeat(responseMsg + " to server " + this.serverId );
 
                     //receive
                     String beatResponse = dis.readUTF().strip();
                     String[] msg = beatResponse.split("\\|");
                     assert(msg[1].equals(serverId));
                     assert(msg[2].equals("HeartBeat"));
+                    ui.addHeartBeat("server " + beatResponse);
 
                 }catch(Exception e){
                     System.out.println("Server " + this.serverId + " disconnected");
-
                     clientSocket.close();
+                    ui.addHeartBeat("server "+ serverId + ("|failed to respond to heartbeat - informing LB") );
 
                     //informLB
                     informLB("disconnect", serverId, serverPort);
@@ -176,6 +187,7 @@ class Monitor{
 
             //respond to server
             String responseMsg = "Monitor|" + serverId + "|" + serverPort;
+            ui.addHeartBeat("Monitor|Giving server id " + serverId);
             dout.writeUTF(responseMsg);  
             dout.flush(); 
 

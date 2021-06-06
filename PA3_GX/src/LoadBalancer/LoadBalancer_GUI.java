@@ -219,7 +219,7 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
         bodyPanel.revalidate();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    synchronized void addMessage(String msg){
+    public void addMessage(String msg){
         Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
         DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
         model.addRow(row);

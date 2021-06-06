@@ -211,43 +211,43 @@ class Server{
                     }
                 }
                 if (id == 1){
-                    ui.t1ProcessingLabel.setVisible(true);
-                    ui.t1CountDownLabel.setVisible(true);
+                    ui.t2ProcessingLabel.setVisible(true);
+                    ui.t2CountDownLabel.setVisible(true);
                     
                     for (int i = 0; i < iterations; i++){
-                        ui.t1CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
+                        ui.t2CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    ui.t1CountDownLabel.setText("Done");
+                    ui.t2CountDownLabel.setText("Done");
                     try {
                     Thread.sleep(1000);
-                    if ("Done".equals(ui.t1CountDownLabel.getText()))
-                        ui.t1CountDownLabel.setVisible(false);
+                    if ("Done".equals(ui.t2CountDownLabel.getText()))
+                        ui.t2CountDownLabel.setVisible(false);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 if (id == 2){
-                    ui.t1ProcessingLabel.setVisible(true);
-                    ui.t1CountDownLabel.setVisible(true);
+                    ui.t3ProcessingLabel.setVisible(true);
+                    ui.t3CountDownLabel.setVisible(true);
                     
                     for (int i = 0; i < iterations; i++){
-                        ui.t1CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
+                        ui.t3CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                    ui.t1CountDownLabel.setText("Done");
+                    ui.t3CountDownLabel.setText("Done");
                     try {
                     Thread.sleep(1000);
-                    if ("Done".equals(ui.t1CountDownLabel.getText()))
-                        ui.t1CountDownLabel.setVisible(false);
+                    if ("Done".equals(ui.t3CountDownLabel.getText()))
+                        ui.t3CountDownLabel.setVisible(false);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                     }
