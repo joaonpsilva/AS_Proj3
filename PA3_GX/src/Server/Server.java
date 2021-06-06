@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 // Client para monitor
@@ -23,8 +25,9 @@ class Server{
             
     private Socket monitorSocket;
     private Socket serverSocket;
-    private static int serverId;
-    private static int serverport;
+    private Server_GUI ui;
+    private static int serverId;                // server id
+    private static int serverport;              // port where the server is running
     private static String avogrado = "602214076";
     private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
  
@@ -34,17 +37,24 @@ class Server{
             new ServerThread(i).start();
     }
     
-    
-    // Connect to monitor and LB
-    public void connect(int port){
+    public Server(Server_GUI ui){
+        this.ui = ui;
         
+    }
+    
+    
+    
+    // Connect to monitor and LB and listen to monitor heart beats
+    public void connect(int port, int threads){
+        for (int i = 0; i < threads; i++)
+            new ServerThread(i).start();    // start server threads
         int sleepTimer = 1000;
         boolean connected = false;
         try{
             System.out.println("Connecting to monitor");
             while (!connected){
                 try {
-                    monitorSocket = new Socket("127.0.0.1",port);        // monitor port
+                    monitorSocket = new Socket("127.0.0.1",port);        // connect to monitor
                     connected = true;
                 } catch (IOException e) {
                     System.err.println("Error connecting to Monitor, trying again in " + sleepTimer/1000 + "  seconds");
@@ -54,32 +64,39 @@ class Server{
             System.out.println("Connection with monitor estabelished");
 
             
-            // Send ID request
+            // Send ID request to monitor
             DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
             String msg = "Server|id_request";
+            ui.addMonitorMessage("server|what is my id?");
             dout.writeUTF(msg);  
             dout.flush();  
             
-            // Receive ID 
+            // Receive ID and port from monitor
             DataInputStream dis=new DataInputStream(monitorSocket.getInputStream());  
             String receivedMessage = dis.readUTF().strip();
             String[] message = receivedMessage.split("\\|");
             System.out.println("Server id: " + message[1]);
             this.serverId = Integer.parseInt(message[1]);
+            ui.serverIdLabel.setText("Server id: " + this.serverId);
             this.serverport = Integer.parseInt(message[2]);
+            ui.addMonitorMessage("monitor|id is " + this.serverId);
             
             // start thread to connect to LB
             ListenLB(this.serverport);
             
             //Receive HeartBeats
             while (true) {
+                // receive heart beat
                 receivedMessage = dis.readUTF().strip();
                 message = receivedMessage.split("\\|");
                 assert(message[1].equals("HeartBeat"));
+                ui.addMonitorMessage("monitor|HeartBeat");
                 
+                // respond to heartbeat
                 String responseMsg = "Server|" + serverId + "|HeartBeat";
                 dout.writeUTF(msg);  
                 dout.flush();  
+                ui.addMonitorMessage("server|HeartBeat response");
             }
             
         }catch(Exception e){
@@ -90,15 +107,17 @@ class Server{
     
     
     
-    // Listen to LB requests
+    // Listen to LB requests and puts the request in the queue
+    // returns request denied if too many in queue
     public void ListenLB(int port) {
         Runnable serverTask = new Runnable() {
             @Override
             public void run() {
                 try {
+                    // start server port
                     ServerSocket serverSocket = new ServerSocket(port);
                     System.out.println("Waiting for clients requests");
-                    while (true) {
+                    while (true) {  // receive requests and put them in queue
                         Socket client = serverSocket.accept();
                         System.out.println("New request");
                         boolean availableSlot = queue.offer(client); // check available slot to handle request
@@ -108,6 +127,7 @@ class Server{
                             DataOutputStream dout = new DataOutputStream(client.getOutputStream());
                             dout.writeUTF("03|0");
                             dout.flush();
+                            ui.addClientMessage("server|request denied to LOAD BALANCER");
                         }
                     }
                 } 
@@ -117,15 +137,15 @@ class Server{
             
             }    
         };  
-        
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
     }
         
     
-    // Thread that handles client
+    // Thread that handles client request and answer them
+    // waits for one request to be in the queue, takes the request and returns the answer
     private class ServerThread extends Thread {
-        private int id;
+        private int id;     // id know which thread to change in the UI
         private ServerThread(int i) {
             System.out.println("Working Thread Initiated");
             this.id = i;
@@ -140,13 +160,16 @@ class Server{
                     String  message=dis.readUTF().strip().split("\\|")[1];
                     int iterations = Integer.parseInt(message);
                     System.out.println("Viewing request. Calculating with iterations: " + iterations);
+                    ui.addClientMessage(message);
+                    updateUI(id, iterations);
 
                     String avogradoIteration = avogrado.substring(0, iterations);
-                    Thread.sleep(5000 * iterations);
+                    Thread.sleep(1000 * iterations);
                     
                     System.out.println("Responding: 02|" + avogradoIteration);
                     DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
                     dout.writeUTF("02|" + avogradoIteration );
+                    ui.addClientMessage("server|success " + avogradoIteration + " to LOAD BALANCER");
                     dout.flush();
                     clientSocket.close();
 
@@ -156,5 +179,82 @@ class Server{
                 }  
             }
         }    
+    }
+    
+    
+    // TODO melhorar isto (meter timers ??)
+    private void updateUI(int id, int iterations){
+        
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                
+                if (id == 0){   // TODO update ids and labels
+                    ui.t1ProcessingLabel.setVisible(true);
+                    ui.t1CountDownLabel.setVisible(true);
+                    
+                    for (int i = 0; i < iterations; i++){
+                        ui.t1CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    ui.t1CountDownLabel.setText("Done");
+                    try {
+                    Thread.sleep(1000);
+                    if ("Done".equals(ui.t1CountDownLabel.getText()))
+                        ui.t1CountDownLabel.setVisible(false);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                if (id == 1){
+                    ui.t1ProcessingLabel.setVisible(true);
+                    ui.t1CountDownLabel.setVisible(true);
+                    
+                    for (int i = 0; i < iterations; i++){
+                        ui.t1CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    ui.t1CountDownLabel.setText("Done");
+                    try {
+                    Thread.sleep(1000);
+                    if ("Done".equals(ui.t1CountDownLabel.getText()))
+                        ui.t1CountDownLabel.setVisible(false);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                if (id == 2){
+                    ui.t1ProcessingLabel.setVisible(true);
+                    ui.t1CountDownLabel.setVisible(true);
+                    
+                    for (int i = 0; i < iterations; i++){
+                        ui.t1CountDownLabel.setText("Done in " + String.valueOf(iterations - i) + " seconds");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    ui.t1CountDownLabel.setText("Done");
+                    try {
+                    Thread.sleep(1000);
+                    if ("Done".equals(ui.t1CountDownLabel.getText()))
+                        ui.t1CountDownLabel.setVisible(false);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }   
+            
+            }
+        }).start();
+        
     }
 }
