@@ -67,7 +67,7 @@ class Server{
             // Send ID request to monitor
             DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
             String msg = "Server|id_request";
-            ui.addMonitorMessage("server|what is my id?");
+            ui.addMonitorMessage("server|id_request");
             dout.writeUTF(msg);  
             dout.flush();  
             
@@ -90,13 +90,11 @@ class Server{
                 receivedMessage = dis.readUTF().strip();
                 message = receivedMessage.split("\\|");
                 assert(message[1].equals("HeartBeat"));
-                ui.addMonitorMessage("monitor|HeartBeat");
                 
                 // respond to heartbeat
                 String responseMsg = "Server|" + serverId + "|HeartBeat";
                 dout.writeUTF(msg);  
                 dout.flush();  
-                ui.addMonitorMessage("server|HeartBeat response");
             }
             
         }catch(Exception e){
@@ -157,6 +155,9 @@ class Server{
                 try{
                     Socket clientSocket = queue.take();
                     DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
+                    DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
+
+                    
                     String  message=dis.readUTF().strip().split("\\|")[1];
                     int iterations = Integer.parseInt(message);
                     System.out.println("Viewing request. Calculating with iterations: " + iterations);
@@ -167,7 +168,6 @@ class Server{
                     Thread.sleep(1000 * iterations);
                     
                     System.out.println("Responding: 02|" + avogradoIteration);
-                    DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
                     dout.writeUTF("02|" + avogradoIteration );
                     ui.addClientMessage("server|success " + avogradoIteration + " to LOAD BALANCER");
                     dout.flush();

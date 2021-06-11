@@ -63,18 +63,6 @@ class LoadBalancer{
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
         
-        
-        try {
-            ServerSocket serverSocket = new ServerSocket(2999);
-            System.out.println("Waiting for Monitor");
-            Socket monitorSocket = serverSocket.accept();
-            monitorout = new DataOutputStream(monitorSocket.getOutputStream());
-            monitorin = new DataInputStream(monitorSocket.getInputStream()); 
-        }
-        catch(IOException e){
-
-        }
-        
     }
     
     
@@ -90,8 +78,12 @@ class LoadBalancer{
             
             // Rec
             String message;
+            DataInputStream dis;
+            DataOutputStream dout;
             try{
-                DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
+                dis = new DataInputStream(clientSocket.getInputStream()); 
+                dout= new DataOutputStream(clientSocket.getOutputStream());
+                
                 message=dis.readUTF().strip();
                 System.out.println(message);
 
@@ -100,64 +92,48 @@ class LoadBalancer{
                 return;
             }
             
+            
+            
             String[] msg = message.split("\\|");
-            ui.addMessage(message);    
+            
+            if (msg[0].equals("Monitor")){
+                System.out.println("Monitor Connected");
+                monitorout = dout;
+                monitorin = dis; 
+            }
                 
             if (msg[0].equals("client")){
 
-                // Send message to server ...
                 // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                 System.out.println("new client request");
+                ui.addMessage(message);  
                 
-                //MAKE CONNECTION WITH MONITOR
                 boolean serverNotCrashed = false;
                 while (!serverNotCrashed){
                     
-                    int serverId = -1;
-                    int serverport = -1;
+                    int serverId;
+                    int serverport;
                     
                     try{
-                    
-                        //ask monitor for servers status
-                        System.out.println("Asking server status");
                         
-                        String monitorMessage = "LoadBalancer|serverInfo";
+                        //ASK MONITOR FOR ONLINE SERVERS
+                        String monitorResponse[] =  askServersStatus();
                         
-                        rl.lock();
-                        monitorout.writeUTF(monitorMessage);
-                        monitorout.flush();
-                        //receive message from monitor
-                        //monitor|serverID, serverPort, ActiveReqs|....
-                        String monitorMsg = monitorin.readUTF().strip();
-                        String monitorResponse[] = monitorMsg.split("\\|");
-                        rl.unlock();
-                        
-                        ui.addMessage(monitorMsg); 
-                        
-                        System.out.println("There are " + (monitorResponse.length -1) + " online servers");
-                        //Get the server with less active Requests
-                        serverId = -1;
-                        serverport = -1;
-                        int leastActReqs = Integer.MAX_VALUE;
-                        for (int i = 1; i < monitorResponse.length; i++){
-                            String serverInfo[] = monitorResponse[i].split(",");
-                            int instanceReqs = Integer.valueOf(serverInfo[2]);
+                        //CHOOSE SERVER
+                        Integer serverinfo[] = chooseServer(monitorResponse);
+                        serverId = serverinfo[0];
+                        serverport = serverinfo[1];
 
-                            if (instanceReqs < leastActReqs){
-                                leastActReqs = instanceReqs;
-                                serverId= Integer.valueOf(serverInfo[0]);
-                                serverport=Integer.valueOf(serverInfo[1]);
-                            }
-                        }
-
+                        
                         if (serverId==-1){
                             System.out.println("Zero servers connected");
+                            ui.addMessage("Zero servers connected");
                             this.clientSocket.close();
                             return;
                         }
                         
                         //INFORM MONITOR ABOUT CHOSEN SERVER
-                        monitorMessage = "LoadBalancer|sentMessage|" + message;
+                        String monitorMessage = "LoadBalancer|sentMessage|" + msg[0]+"|"+msg[1]+"|"+msg[2]+"|"+serverId+"|"+msg[4]+"|"+msg[5]+"|"+msg[6];
                         rl.lock();
                         monitorout.writeUTF(monitorMessage);
                         monitorout.flush();
@@ -168,26 +144,15 @@ class LoadBalancer{
                         return;
                     }
 
-
-                    String serverResponse = "";
+                    
+                    //SENDING REQUEST TO SERVER
+                    String serverMessage;
                     try{
 
-                        //SEND REQUEST TO SERVER                    
-                        System.out.println("Sending request to server " + serverId);
-
-                        Socket server = new Socket("127.0.0.1",serverport);
-                        DataOutputStream dout = new DataOutputStream(server.getOutputStream());
-                        String serverMessage = "request|" + msg[5];
-                        dout.writeUTF(serverMessage);
-                        dout.flush();
-
-                        // Server response message:  server|02|Constante ou server|03|0 (caso erro
-                        DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
-                        serverResponse=server_dis.readUTF().strip();
-                        System.out.println("Received: " + serverResponse + " from server " + serverId);
+                        serverMessage = sendReqToServer(serverId, serverport, msg[5]);
+                        System.out.println(serverMessage);
                         serverNotCrashed = true;
-                        server.close();
-                        
+
                     }catch(Exception e){
                         System.out.println("Server crashed. Choosing another server");
                         try {
@@ -197,10 +162,10 @@ class LoadBalancer{
                         continue;
                     } 
                     
-                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverResponse.split("\\|")[0] + "|" + msg[5] + "|" + serverResponse.split("\\|")[1];
+                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverMessage.split("\\|")[0] + "|" + msg[5] + "|" + serverMessage.split("\\|")[1];
                     
                     try{
-                        //INFORM MONITOR ABOUT CHOSEN SERVER
+                        //INFORM MONITOR ABOUT REQUEST RESPONSE
                         rl.lock();
                         String monitorMessage = "LoadBalancer|ReceivedMessage|" + clientResponse;
                         monitorout.writeUTF(monitorMessage);
@@ -215,9 +180,8 @@ class LoadBalancer{
                     try{
                         // Client response
                         
-                        DataOutputStream clientDout = new DataOutputStream(clientSocket.getOutputStream());
-                        clientDout.writeUTF(clientResponse);
-                        clientDout.flush();
+                        dout.writeUTF(clientResponse);
+                        dout.flush();
 
                         // Closing connection
                         clientSocket.close();
@@ -230,6 +194,74 @@ class LoadBalancer{
  
                 }
             }
+        }
+        
+        private String[] askServersStatus(){
+            
+            String monitorResponse[] = {};
+            try{
+                //ask monitor for servers status
+                System.out.println("Asking server status");
+
+                String monitorMessage = "LoadBalancer|serverInfo";
+
+                rl.lock();
+                monitorout.writeUTF(monitorMessage);
+                monitorout.flush();
+                //receive message from monitor
+                //monitor|serverID, serverPort, ActiveReqs|....
+                String monitorMsg = monitorin.readUTF().strip();
+                monitorResponse = monitorMsg.split("\\|");
+                rl.unlock();
+
+                System.out.println("There are " + (monitorResponse.length -1) + " online servers");
+                
+            }catch(Exception e){}
+            
+            return monitorResponse;
+        }
+        
+        private Integer[] chooseServer(String monitorResponse[]){
+            //Get the server with less active Requests
+            int serverId = -1;
+            int serverport = -1;
+            int leastActReqs = Integer.MAX_VALUE;
+            for (int i = 1; i < monitorResponse.length; i++){
+                String serverInfo[] = monitorResponse[i].split(",");
+                int instanceReqs = Integer.valueOf(serverInfo[2]);
+
+                if (instanceReqs < leastActReqs){
+                    leastActReqs = instanceReqs;
+                    serverId= Integer.valueOf(serverInfo[0]);
+                    serverport=Integer.valueOf(serverInfo[1]);
+                }
+            }
+            Integer[] toReturn = {serverId, serverport};
+            return toReturn;
+
+        }
+        
+        private String sendReqToServer(int serverId, int serverport, String iterations) throws IOException{
+            
+            //SEND REQUEST TO SERVER                    
+            System.out.println("Sending request to server " + serverId);
+            ui.addMessage("Sending request to server " + serverId);
+
+            Socket server = new Socket("127.0.0.1",serverport);
+            DataOutputStream serverdout = new DataOutputStream(server.getOutputStream());
+            String serverMessage = "request|" + iterations;
+            serverdout.writeUTF(serverMessage);
+            serverdout.flush();
+
+            // Server response message:  server|02|Constante ou server|03|0 (caso erro
+            DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
+            String serverResponse=server_dis.readUTF().strip();
+            System.out.println("Received: " + serverResponse + " from server " + serverId);
+            ui.addMessage("Received: " + serverResponse + " from server " + serverId);
+
+            server.close();
+            
+            return serverResponse;
         }
 
     }

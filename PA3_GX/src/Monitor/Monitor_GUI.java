@@ -302,7 +302,7 @@ public class Monitor_GUI extends javax.swing.JFrame {
         bodyPanel.removeAll();
         bodyPanel.add(runningPanel);
         bodyPanel.repaint();
-        bodyPanel.revalidate();
+        bodyPanel.revalidate();        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     

@@ -41,9 +41,9 @@ class Monitor{
 
     public Monitor(){}
     
-    public void startServer(int port){        
+    public void startServer(int port, int lbport){        
         
-        this.lbport = port;
+        this.lbport = lbport;
         // Starting Server for server to connect
         Runnable serverTask = new Runnable() {
         @Override
@@ -63,10 +63,22 @@ class Monitor{
         Thread serverThread = new Thread(serverTask);
         serverThread.start();
         
-        this.listenToLB();
+        
+        
+        Runnable lbTask = new Runnable() {
+            @Override
+            public void run() {
+                listenToLB();
+            }
+        };  
+        Thread lbThread = new Thread(lbTask);
+        lbThread.start();
+        
+        
     }
+               
     
-    private void listenToLB(){
+    public void listenToLB(){
         
         try{       
             System.out.println("Connecting to LB");
@@ -74,9 +86,13 @@ class Monitor{
             this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
             this.lbin = new DataInputStream(lbSocket.getInputStream()); 
             
+            lbdout.writeUTF("Monitor|connection");
+            lbdout.flush();
+            
             while (true){
                 String lbMessage = lbin.readUTF().strip();
                 String[] msg = lbMessage.split("\\|");
+                ui.addLBMessage(lbMessage);
                 
                 assert(msg[0].equals("LoadBalancer"));
                     
@@ -94,9 +110,14 @@ class Monitor{
 
                 else if (msg[1].equals("sentMessage")){
                     System.out.println(lbMessage);
+                    int serverid = Integer.valueOf(msg[5]);
+                    serverMap.get(serverid).newReq();
+
                 }
                 else if (msg[1].equals("ReceivedMessage")){
                     System.out.println(lbMessage);
+                    int serverid = Integer.valueOf(msg[4]);
+                    serverMap.get(serverid).endReq();
                 }
             }
             
@@ -152,17 +173,17 @@ class Monitor{
                     Thread.sleep(1000); //1 sec
                     dout.writeUTF(responseMsg);  
                     dout.flush(); 
-                    ui.addHeartBeat(responseMsg + " to server " + this.serverId );
 
                     //receive
                     String beatResponse = dis.readUTF().strip();
                     String[] msg = beatResponse.split("\\|");
                     assert(msg[1].equals(serverId));
                     assert(msg[2].equals("HeartBeat"));
-                    ui.addHeartBeat("server " + beatResponse);
 
                 }catch(Exception e){
                     System.out.println("Server " + this.serverId + " disconnected");
+                    ui.addHeartBeat("Server " + this.serverId + " disconnected");
+
                     clientSocket.close();
                     
                     serverMap.remove(this.serverId);
@@ -190,12 +211,12 @@ class Monitor{
             }
 
             System.out.println("New server connection. Giving id: " + this.serverId );
+            ui.addHeartBeat("Giving id: " + this.serverId );
             serverMap.put(serverId, new ServerInfo(serverId, serverPort));
 
             
             //respond to server
             String responseMsg = "Monitor|" + serverId + "|" + serverPort;
-            ui.addHeartBeat("Monitor|Giving server id " + serverId);
             dout.writeUTF(responseMsg);  
             dout.flush(); 
 
