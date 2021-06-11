@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package LoadBalancer;
+package Monitor;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,12 +25,22 @@ public class ServerInfo implements Comparable<ServerInfo>{
         this.activeRequests = 0;
     }
     
+    public ServerInfo(int serverId, int serverPort, int activeRequests) {
+        this.serverId = serverId;
+        this.serverPort = serverPort;
+        this.activeRequests = activeRequests;
+    }
+    
     public int getServerId() {
         return serverId;
     }
 
     public int getServerPort() {
         return serverPort;
+    }
+    
+    public String toString(){
+        return this.serverId + "," + this.serverPort + "," + this.getActiveRequests();
     }
     
     public void newReq(){
@@ -58,9 +68,9 @@ public class ServerInfo implements Comparable<ServerInfo>{
 
     public Integer getActiveRequests() {
         try {
-                // garantir acesso em exclusividade
-                rl.lock();
-                return activeRequests;
+            // garantir acesso em exclusividade
+            rl.lock();
+            return activeRequests;
         } catch ( Exception ex ) {}
         finally {
             rl.unlock();
