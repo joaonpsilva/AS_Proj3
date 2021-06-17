@@ -492,13 +492,13 @@ public class Server_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_connectButtonActionPerformed
 
     public void addClientMessage(String msg){
-        Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
+        Object[] row = { msg.split("\\|")[0] , msg.substring(msg.indexOf("|")+1)};      // sender and message
         DefaultTableModel model = (DefaultTableModel) clientMessageTable.getModel();
         model.addRow(row);
     }
     
     public void addMonitorMessage(String msg){
-        Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
+        Object[] row = { msg.split("\\|")[0] , msg.substring(msg.indexOf("|")+1)};      // sender and message
         DefaultTableModel model = (DefaultTableModel) monitorMessageTable.getModel();
         model.addRow(row);
     }

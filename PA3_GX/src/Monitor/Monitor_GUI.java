@@ -307,13 +307,13 @@ public class Monitor_GUI extends javax.swing.JFrame {
 
     
     public void addHeartBeat(String msg){
-        Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
+        Object[] row = { msg.split("\\|")[0] , msg.substring(msg.indexOf("|")+1)};      // sender and message
         DefaultTableModel model = (DefaultTableModel) heartBeatTable.getModel();
         model.addRow(row);
     }
     
     public void addLBMessage(String msg){
-        Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
+        Object[] row = { msg.split("\\|")[0] , msg.substring(msg.indexOf("|")+1)};      // sender and message
         DefaultTableModel model = (DefaultTableModel) lbTable.getModel();
         model.addRow(row);
     }

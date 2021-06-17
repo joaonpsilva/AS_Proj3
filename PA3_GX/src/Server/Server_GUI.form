@@ -377,7 +377,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Component id="t1CountDownLabel" max="32767" attributes="0"/>
-                                  <Component id="t1ProcessingLabel" pref="119" max="32767" attributes="0"/>
+                                  <Component id="t1ProcessingLabel" pref="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
                           </Group>
@@ -439,8 +439,8 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" attributes="0">
-                                      <Component id="t2ProcessingLabel" pref="124" max="32767" attributes="0"/>
-                                      <EmptySpace pref="36" max="32767" attributes="0"/>
+                                      <Component id="t2ProcessingLabel" pref="0" max="32767" attributes="0"/>
+                                      <EmptySpace max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -494,7 +494,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="t3ProcessingLabel" pref="160" max="32767" attributes="0"/>
+                          <Component id="t3ProcessingLabel" max="32767" attributes="0"/>
                           <Component id="t3CountDownLabel" alignment="0" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>

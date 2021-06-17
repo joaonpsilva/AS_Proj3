@@ -220,7 +220,7 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     public void addMessage(String msg){
-        Object[] row = { msg.split("\\|")[0] , msg};      // sender and message
+        Object[] row = { msg.split("\\|")[0] , msg.substring(msg.indexOf("|")+1)};      // sender and message
         DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
         model.addRow(row);
     }

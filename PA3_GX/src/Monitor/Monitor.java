@@ -86,7 +86,7 @@ class Monitor{
             this.lbdout = new DataOutputStream(lbSocket.getOutputStream()); 
             this.lbin = new DataInputStream(lbSocket.getInputStream()); 
             
-            lbdout.writeUTF("Monitor|connection");
+            lbdout.writeUTF("MONITOR|CONNECTION");
             lbdout.flush();
             
             while (true){
@@ -94,9 +94,9 @@ class Monitor{
                 String[] msg = lbMessage.split("\\|");
                 ui.addLBMessage(lbMessage);
                 
-                assert(msg[0].equals("LoadBalancer"));
+                assert(msg[0].equals("LOADBALANCER"));
                     
-                if (msg[1].equals("serverInfo")){     
+                if (msg[1].equals("SERVER_INFO")){     
                     String response = "Monitor";
 
                     Iterator it = serverMap.entrySet().iterator();
@@ -108,16 +108,28 @@ class Monitor{
                     lbdout.flush();
                 }
 
-                else if (msg[1].equals("sentMessage")){
-                    System.out.println(lbMessage);
-                    int serverid = Integer.valueOf(msg[5]);
-                    serverMap.get(serverid).newReq();
-
-                }
-                else if (msg[1].equals("ReceivedMessage")){
+                else if (msg[1].equals("SENT_REQUEST")){
                     System.out.println(lbMessage);
                     int serverid = Integer.valueOf(msg[4]);
-                    serverMap.get(serverid).endReq();
+                    int reqId = Integer.valueOf(msg[3]);
+                    
+                    String request = "";
+                    for (int i = 2; i < msg.length; i++){
+                        request += msg[i] + "|";
+                    }
+                    serverMap.get(serverid).newReq(reqId, request);
+
+                }
+                else if (msg[1].equals("RECEIVED_RESPONSE")){
+                    System.out.println(lbMessage);
+                    int serverid = Integer.valueOf(msg[4]);
+                    int reqId = Integer.valueOf(msg[3]);
+                    
+                    String request = "";
+                    for (int i = 2; i < msg.length; i++){
+                        request += msg[i] + "|";
+                    }
+                    serverMap.get(serverid).endReq(reqId, request);
                 }
             }
             
@@ -145,10 +157,12 @@ class Monitor{
             try{
                 String  message=dis.readUTF().strip();
                 String[] msg = message.split("\\|");
+                
+                ui.addHeartBeat(message);
 
-                if (msg[0].equals("Server")){
+                if (msg[0].equals("SERVER")){
                     
-                    if (msg[1].equals("id_request")){     
+                    if (msg[1].equals("ID_REQUEST")){     
 
                         handleIDReq();
                         startHeartBeatProcess();  
@@ -164,7 +178,7 @@ class Monitor{
         private void startHeartBeatProcess() throws SocketException, IOException{
             //HeartBeat
             clientSocket.setSoTimeout(1000);    //wait 1 secs for responses
-            String responseMsg = "Monitor|HeartBeat";
+            String responseMsg = "MONITOR|HEARTBEAT";
 
             while (true){
                 try{
@@ -178,11 +192,11 @@ class Monitor{
                     String beatResponse = dis.readUTF().strip();
                     String[] msg = beatResponse.split("\\|");
                     assert(msg[1].equals(serverId));
-                    assert(msg[2].equals("HeartBeat"));
+                    assert(msg[2].equals("HEARTBEAT"));
 
                 }catch(Exception e){
                     System.out.println("Server " + this.serverId + " disconnected");
-                    ui.addHeartBeat("Server " + this.serverId + " disconnected");
+                    ui.addHeartBeat("SERVER|" + this.serverId + "|DISCONNETED");
 
                     clientSocket.close();
                     
@@ -211,12 +225,11 @@ class Monitor{
             }
 
             System.out.println("New server connection. Giving id: " + this.serverId );
-            ui.addHeartBeat("Giving id: " + this.serverId );
             serverMap.put(serverId, new ServerInfo(serverId, serverPort));
 
             
             //respond to server
-            String responseMsg = "Monitor|" + serverId + "|" + serverPort;
+            String responseMsg = "MONITOR|" + serverId + "|" + serverPort;
             dout.writeUTF(responseMsg);  
             dout.flush(); 
 

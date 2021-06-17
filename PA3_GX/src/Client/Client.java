@@ -18,44 +18,33 @@ import java.util.logging.Logger;
 class Client{
             
     private Socket clientSocket;
-    private DataOutputStream dout;
     private int clientId;
     private int reqIncr = 0;
     private Client_GUI clientUI;
+    private DataOutputStream dout;
+    private DataInputStream dis;
 
-    public Client(){
-        this.clientId = 6;
-    }
+    public Client(){}
     
     public Client(Client_GUI ui){
-        this.clientId = 6;
         this.clientUI = ui;
     }
     
+    public void setClientId(int id){
+        this.clientId = id;
+    }
     
     public void connect(String address, int port){
         
-        boolean connected = false;
         int sleepTimer = 1000;
         System.out.println("Trying to connect to Load Balancer");
         try{
             clientSocket = new Socket(address,port);        // Load balancer port
             dout = new DataOutputStream(clientSocket.getOutputStream());
+            dis=new DataInputStream(clientSocket.getInputStream());  
             System.out.println("Connection initiated");
-
-            // Send message
-            String msg = "client|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + clientUI.incrementationsTextField.getText() + "|0|";
-            dout.writeUTF(msg);  
-            dout.flush(); 
-            clientUI.messageStatusLabel.setVisible(true);
-
-            //Receive message
-            DataInputStream dis=new DataInputStream(clientSocket.getInputStream());  
-            String  receivedMessage = dis.readUTF().strip();
-            System.out.println(receivedMessage);
-            clientUI.receivedMessageTextField.setText(receivedMessage);
-                
-        }catch(ConnectException e){
+            
+        }catch(Exception e){
             System.err.println("Failed to connect to Load Balancer trying again in " + sleepTimer/1000 + " seconds");
             connect(address, port);
             try {
@@ -64,7 +53,28 @@ class Client{
                 System.err.println("Thread error");
                 System.exit(1);
             }
-        } catch (IOException ex) {
+        }
+    }
+    
+    public void sendRequest(String address, int port){
+        
+        connect(address, port);
+        
+        try{
+            // Send message
+            String msg = "CLIENT|" + this.clientId + "|" + (this.clientId * 1000 + this.reqIncr) + "|00|01|" + clientUI.incrementationsTextField.getText() + "|0|";
+            this.reqIncr++;
+            
+            dout.writeUTF(msg);  
+            dout.flush(); 
+            clientUI.messageStatusLabel.setVisible(true);
+
+            //Receive message
+            String  receivedMessage = dis.readUTF().strip();
+            System.out.println(receivedMessage);
+            clientUI.receivedMessageTextField.setText(receivedMessage);
+                
+        }catch(Exception e){
             Logger.getLogger("ERROR");
         }
     }

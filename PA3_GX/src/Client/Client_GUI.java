@@ -208,7 +208,7 @@ public class Client_GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         String address = addressTextField.getText();
         int port = Integer.parseInt(PortTextField.getText());
-        client.connect(address, port);
+        client.sendRequest(address, port);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

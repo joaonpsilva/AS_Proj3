@@ -5,6 +5,8 @@
  */
 package Monitor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -16,7 +18,7 @@ public class ServerInfo implements Comparable<ServerInfo>{
     private int serverId;
     private int serverPort;
     private Integer activeRequests;
-    private final ReentrantLock rl = new ReentrantLock( true );
+    private Map<Integer, String> requests = new HashMap<>();
 
 
     public ServerInfo(int serverId, int serverPort) {
@@ -43,38 +45,18 @@ public class ServerInfo implements Comparable<ServerInfo>{
         return this.serverId + "," + this.serverPort + "," + this.getActiveRequests();
     }
     
-    public void newReq(){
-        try {
-            // garantir acesso em exclusividade
-            rl.lock();
-            this.activeRequests++;
-        } catch ( Exception ex ) {}
-        finally {
-            rl.unlock();
-        }
+    public void newReq(int requestId, String request){
+        this.requests.put(requestId, request);
+        this.activeRequests++;
     }
     
-    public void endReq(){
-        try {
-            // garantir acesso em exclusividade
-            rl.lock();
-            this.activeRequests--;
-        } catch ( Exception ex ) {}
-        finally {
-            rl.unlock();
-        }
+    public void endReq(int requestId, String request){
+        this.requests.remove(requestId);
+        this.activeRequests--;
     }
 
 
     public Integer getActiveRequests() {
-        try {
-            // garantir acesso em exclusividade
-            rl.lock();
-            return activeRequests;
-        } catch ( Exception ex ) {}
-        finally {
-            rl.unlock();
-        }
         return activeRequests;
     }
     

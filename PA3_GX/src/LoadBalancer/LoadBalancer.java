@@ -95,18 +95,18 @@ class LoadBalancer{
             
             
             String[] msg = message.split("\\|");
-            
-            if (msg[0].equals("Monitor")){
+            ui.addMessage(message);
+
+            if (msg[0].equals("MONITOR")){
                 System.out.println("Monitor Connected");
                 monitorout = dout;
                 monitorin = dis; 
             }
                 
-            if (msg[0].equals("client")){
+            if (msg[0].equals("CLIENT")){
 
                 // client message example: client | client id | request id | 00 | 01 | number of iterations | 0 |
                 System.out.println("new client request");
-                ui.addMessage(message);  
                 
                 boolean serverNotCrashed = false;
                 while (!serverNotCrashed){
@@ -127,13 +127,12 @@ class LoadBalancer{
                         
                         if (serverId==-1){
                             System.out.println("Zero servers connected");
-                            ui.addMessage("Zero servers connected");
                             this.clientSocket.close();
                             return;
                         }
                         
                         //INFORM MONITOR ABOUT CHOSEN SERVER
-                        String monitorMessage = "LoadBalancer|sentMessage|" + msg[0]+"|"+msg[1]+"|"+msg[2]+"|"+serverId+"|"+msg[4]+"|"+msg[5]+"|"+msg[6];
+                        String monitorMessage = "LOADBALANCER|SENT_REQUEST|"+msg[1]+"|"+msg[2]+"|"+serverId+"|"+msg[4]+"|"+msg[5]+"|"+msg[6];
                         rl.lock();
                         monitorout.writeUTF(monitorMessage);
                         monitorout.flush();
@@ -150,7 +149,6 @@ class LoadBalancer{
                     try{
 
                         serverMessage = sendReqToServer(serverId, serverport, msg[5]);
-                        System.out.println(serverMessage);
                         serverNotCrashed = true;
 
                     }catch(Exception e){
@@ -162,12 +160,12 @@ class LoadBalancer{
                         continue;
                     } 
                     
-                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverMessage.split("\\|")[0] + "|" + msg[5] + "|" + serverMessage.split("\\|")[1];
+                    String clientResponse = msg[1] + "|" + msg[2] + "|" + serverId + "|" + serverMessage.split("\\|")[1] + "|" + msg[5] + "|" + serverMessage.split("\\|")[2];
                     
                     try{
                         //INFORM MONITOR ABOUT REQUEST RESPONSE
                         rl.lock();
-                        String monitorMessage = "LoadBalancer|ReceivedMessage|" + clientResponse;
+                        String monitorMessage = "LOADBALANCER|RECEIVED_RESPONSE|" + clientResponse;
                         monitorout.writeUTF(monitorMessage);
                         monitorout.flush();
                         rl.unlock();
@@ -180,7 +178,7 @@ class LoadBalancer{
                     try{
                         // Client response
                         
-                        dout.writeUTF(clientResponse);
+                        dout.writeUTF("LOADBALANCER|" + clientResponse);
                         dout.flush();
 
                         // Closing connection
@@ -203,7 +201,7 @@ class LoadBalancer{
                 //ask monitor for servers status
                 System.out.println("Asking server status");
 
-                String monitorMessage = "LoadBalancer|serverInfo";
+                String monitorMessage = "LOADBALANCER|SERVER_INFO";
 
                 rl.lock();
                 monitorout.writeUTF(monitorMessage);
@@ -245,11 +243,10 @@ class LoadBalancer{
             
             //SEND REQUEST TO SERVER                    
             System.out.println("Sending request to server " + serverId);
-            ui.addMessage("Sending request to server " + serverId);
 
             Socket server = new Socket("127.0.0.1",serverport);
             DataOutputStream serverdout = new DataOutputStream(server.getOutputStream());
-            String serverMessage = "request|" + iterations;
+            String serverMessage = "LOADBALANCER|" + iterations;
             serverdout.writeUTF(serverMessage);
             serverdout.flush();
 
@@ -257,7 +254,7 @@ class LoadBalancer{
             DataInputStream server_dis=new DataInputStream(server.getInputStream()); 
             String serverResponse=server_dis.readUTF().strip();
             System.out.println("Received: " + serverResponse + " from server " + serverId);
-            ui.addMessage("Received: " + serverResponse + " from server " + serverId);
+            ui.addMessage(serverResponse);
 
             server.close();
             

@@ -28,7 +28,7 @@ class Server{
     private Server_GUI ui;
     private static int serverId;                // server id
     private static int serverport;              // port where the server is running
-    private static String avogrado = "602214076";
+    private static String avogrado = "6.022141527";
     private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
  
     public Server(){
@@ -66,8 +66,7 @@ class Server{
             
             // Send ID request to monitor
             DataOutputStream dout = new DataOutputStream(monitorSocket.getOutputStream());
-            String msg = "Server|id_request";
-            ui.addMonitorMessage("server|id_request");
+            String msg = "SERVER|ID_REQUEST";
             dout.writeUTF(msg);  
             dout.flush();  
             
@@ -79,7 +78,7 @@ class Server{
             this.serverId = Integer.parseInt(message[1]);
             ui.serverIdLabel.setText("Server id: " + this.serverId);
             this.serverport = Integer.parseInt(message[2]);
-            ui.addMonitorMessage("monitor|id is " + this.serverId);
+            ui.addMonitorMessage(receivedMessage);
             
             // start thread to connect to LB
             ListenLB(this.serverport);
@@ -89,10 +88,10 @@ class Server{
                 // receive heart beat
                 receivedMessage = dis.readUTF().strip();
                 message = receivedMessage.split("\\|");
-                assert(message[1].equals("HeartBeat"));
+                assert(message[1].equals("HEARTBEAT"));
                 
                 // respond to heartbeat
-                String responseMsg = "Server|" + serverId + "|HeartBeat";
+                String responseMsg = "SERVER|" + serverId + "|HEARTBEAT";
                 dout.writeUTF(msg);  
                 dout.flush();  
             }
@@ -123,9 +122,8 @@ class Server{
                         if (availableSlot==false){
                             System.out.println("Request Denied - to many requests to handle");
                             DataOutputStream dout = new DataOutputStream(client.getOutputStream());
-                            dout.writeUTF("03|0");
+                            dout.writeUTF("SERVER|DENNIED|0");
                             dout.flush();
-                            ui.addClientMessage("server|request denied to LOAD BALANCER");
                         }
                     }
                 } 
@@ -158,18 +156,20 @@ class Server{
                     DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
 
                     
-                    String  message=dis.readUTF().strip().split("\\|")[1];
+                    String lbmessage=dis.readUTF().strip();
+                    String message = lbmessage.split("\\|")[1];
+                    
                     int iterations = Integer.parseInt(message);
                     System.out.println("Viewing request. Calculating with iterations: " + iterations);
-                    ui.addClientMessage(message);
+                    ui.addClientMessage(lbmessage);
                     updateUI(id, iterations);
 
                     String avogradoIteration = avogrado.substring(0, iterations);
                     Thread.sleep(1000 * iterations);
+                    String response = "SERVER|ACCEPTED|" + avogradoIteration;
                     
-                    System.out.println("Responding: 02|" + avogradoIteration);
-                    dout.writeUTF("02|" + avogradoIteration );
-                    ui.addClientMessage("server|success " + avogradoIteration + " to LOAD BALANCER");
+                    System.out.println(response);
+                    dout.writeUTF(response);
                     dout.flush();
                     clientSocket.close();
 
