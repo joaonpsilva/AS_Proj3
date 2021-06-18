@@ -3,14 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Client/Client.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/LoadBalancer/LoadBalancer_GUI.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Monitor/Monitor.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Monitor/Monitor_GUI.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Monitor/ServerInfo.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Client/Client_GUI.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/LoadBalancer/LoadBalancer.java</file>
-            <file>file:/home/joaonps/Desktop/AS/AS_Proj3/PA3_GX/src/Server/Server.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/Client/Client_GUI.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/LoadBalancer/LoadBalancer.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/Server/Server_GUI.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/LoadBalancer/LoadBalancer_GUI.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/Monitor/Monitor_GUI.java</file>
+            <file>file:/C:/Users/Bernardo/Documents/NetBeansProjects/AS_OCC/AS_Proj3/PA3_GX/src/Server/Server.java</file>
         </group>
     </open-files>
 </project-private>

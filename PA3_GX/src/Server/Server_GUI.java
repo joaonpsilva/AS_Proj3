@@ -5,6 +5,9 @@
  */
 package Server;
 
+import java.awt.Font;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
@@ -49,13 +52,13 @@ public class Server_GUI extends javax.swing.JFrame {
         waitLabel = new javax.swing.JLabel();
         runningPanel = new javax.swing.JPanel();
         threadPanel = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
+        thread1Panel = new javax.swing.JPanel();
         t1ProcessingLabel = new javax.swing.JLabel();
         t1CountDownLabel = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
+        thread2Panel = new javax.swing.JPanel();
         t2ProcessingLabel = new javax.swing.JLabel();
         t2CountDownLabel = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
+        thread3Panel = new javax.swing.JPanel();
         t3ProcessingLabel = new javax.swing.JLabel();
         t3CountDownLabel = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -71,11 +74,12 @@ public class Server_GUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         monitorMessageTable = new javax.swing.JTable();
         jLabel12 = new javax.swing.JLabel();
+        heartBeatButton = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        serverIdLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        serverIdLabel.setText("Server id: not assigned yet");
+        serverIdLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        serverIdLabel.setText("Server id: (not assigned yet)");
 
         javax.swing.GroupLayout titlePanelLayout = new javax.swing.GroupLayout(titlePanel);
         titlePanel.setLayout(titlePanelLayout);
@@ -169,7 +173,7 @@ public class Server_GUI extends javax.swing.JFrame {
                                         .addComponent(jLabel4))))
                             .addGroup(startPanelLayout.createSequentialGroup()
                                 .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 202, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 220, Short.MAX_VALUE)
                                 .addComponent(requestsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(startPanelLayout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -205,40 +209,47 @@ public class Server_GUI extends javax.swing.JFrame {
                 .addGroup(startPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(requestsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
                 .addComponent(connectButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(waitLabel)
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         bodyPanel.add(startPanel, "card2");
 
         threadPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        threadPanel.setMaximumSize(new java.awt.Dimension(539, 223));
         threadPanel.setMinimumSize(new java.awt.Dimension(539, 223));
+        threadPanel.setPreferredSize(new java.awt.Dimension(539, 223));
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Thread 1"));
-        jPanel1.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread1Panel.setBackground(new java.awt.Color(204, 255, 204));
+        thread1Panel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Thread 1", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        thread1Panel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        thread1Panel.setMaximumSize(new java.awt.Dimension(172, 100));
+        thread1Panel.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread1Panel.setPreferredSize(new java.awt.Dimension(172, 100));
 
-        t1ProcessingLabel.setText("Processing ... iterations");
-        t1ProcessingLabel.setVisible(false);
+        t1ProcessingLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        t1ProcessingLabel.setText("IDLE - waiting for requests");
 
+        t1CountDownLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         t1CountDownLabel.setText("Done in ... seconds");
         t1CountDownLabel.setVisible(false);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(t1CountDownLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(t1ProcessingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
-                .addGap(41, 41, 41))
+        javax.swing.GroupLayout thread1PanelLayout = new javax.swing.GroupLayout(thread1Panel);
+        thread1Panel.setLayout(thread1PanelLayout);
+        thread1PanelLayout.setHorizontalGroup(
+            thread1PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(thread1PanelLayout.createSequentialGroup()
+                .addGroup(thread1PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(t1ProcessingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(t1CountDownLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        thread1PanelLayout.setVerticalGroup(
+            thread1PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(thread1PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(t1ProcessingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -246,58 +257,62 @@ public class Server_GUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Thread 2"));
-        jPanel4.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread2Panel.setBackground(new java.awt.Color(204, 255, 204));
+        thread2Panel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Thread 2", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        thread2Panel.setMaximumSize(new java.awt.Dimension(172, 100));
+        thread2Panel.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread2Panel.setPreferredSize(new java.awt.Dimension(172, 100));
 
-        t2ProcessingLabel.setText("Processing ... iterations");
-        t2ProcessingLabel.setVisible(false);
+        t2ProcessingLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        t2ProcessingLabel.setText("IDLE - waiting for requests");
 
+        t2CountDownLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         t2CountDownLabel.setText("Done in ... seconds");
         t2CountDownLabel.setVisible(false);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout thread2PanelLayout = new javax.swing.GroupLayout(thread2Panel);
+        thread2Panel.setLayout(thread2PanelLayout);
+        thread2PanelLayout.setHorizontalGroup(
+            thread2PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(thread2PanelLayout.createSequentialGroup()
                 .addGap(0, 0, 0)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(t2CountDownLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(t2ProcessingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
-                        .addContainerGap(36, Short.MAX_VALUE))))
+                .addGroup(thread2PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(t2CountDownLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(t2ProcessingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        thread2PanelLayout.setVerticalGroup(
+            thread2PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(thread2PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(t2ProcessingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
                 .addComponent(t2CountDownLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Thread 3"));
-        jPanel6.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread3Panel.setBackground(new java.awt.Color(204, 255, 204));
+        thread3Panel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Thread 3", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+        thread3Panel.setMaximumSize(new java.awt.Dimension(172, 100));
+        thread3Panel.setMinimumSize(new java.awt.Dimension(172, 100));
+        thread3Panel.setPreferredSize(new java.awt.Dimension(172, 100));
 
-        t3ProcessingLabel.setText("Processing ... iterations");
-        t3ProcessingLabel.setVisible(false);
+        t3ProcessingLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        t3ProcessingLabel.setText("IDLE - waiting for requests");
 
+        t3CountDownLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         t3CountDownLabel.setText("Done in ... seconds");
         t3CountDownLabel.setVisible(false);
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(t3ProcessingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+        javax.swing.GroupLayout thread3PanelLayout = new javax.swing.GroupLayout(thread3Panel);
+        thread3Panel.setLayout(thread3PanelLayout);
+        thread3PanelLayout.setHorizontalGroup(
+            thread3PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(t3ProcessingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
             .addComponent(t3CountDownLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        thread3PanelLayout.setVerticalGroup(
+            thread3PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(thread3PanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(t3ProcessingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -315,10 +330,12 @@ public class Server_GUI extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(clientMessageTable);
         if (clientMessageTable.getColumnModel().getColumnCount() > 0) {
-            clientMessageTable.getColumnModel().getColumn(0).setMaxWidth(80);
+            clientMessageTable.getColumnModel().getColumn(0).setMinWidth(100);
+            clientMessageTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            clientMessageTable.getColumnModel().getColumn(0).setMaxWidth(100);
         }
 
-        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel11.setText("Client Message Log");
 
         javax.swing.GroupLayout threadPanelLayout = new javax.swing.GroupLayout(threadPanel);
@@ -327,35 +344,36 @@ public class Server_GUI extends javax.swing.JFrame {
             threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(threadPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .addGroup(threadPanelLayout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 7, Short.MAX_VALUE))
+                .addGroup(threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(threadPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addGroup(threadPanelLayout.createSequentialGroup()
+                        .addComponent(thread1Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, 0)
+                        .addComponent(thread2Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, 0)
+                        .addComponent(thread3Panel, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         threadPanelLayout.setVerticalGroup(
             threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(threadPanelLayout.createSequentialGroup()
-                .addGroup(threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(thread2Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                    .addComponent(thread3Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                    .addComponent(thread1Panel, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(threadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         monitorPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Monitor connection");
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -385,11 +403,15 @@ public class Server_GUI extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(monitorMessageTable);
         if (monitorMessageTable.getColumnModel().getColumnCount() > 0) {
-            monitorMessageTable.getColumnModel().getColumn(0).setMaxWidth(80);
+            monitorMessageTable.getColumnModel().getColumn(0).setMinWidth(100);
+            monitorMessageTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            monitorMessageTable.getColumnModel().getColumn(0).setMaxWidth(100);
         }
 
-        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel12.setText("Monitor Message Log");
+
+        heartBeatButton.setText("monitor HeartBeat");
 
         javax.swing.GroupLayout monitorPaneLayout = new javax.swing.GroupLayout(monitorPane);
         monitorPane.setLayout(monitorPaneLayout);
@@ -398,25 +420,24 @@ public class Server_GUI extends javax.swing.JFrame {
             .addGroup(monitorPaneLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(monitorPaneLayout.createSequentialGroup()
-                        .addComponent(addressTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel9)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(portTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(monitorPaneLayout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(jLabel8)
-                        .addGap(49, 49, 49)
-                        .addComponent(jLabel10))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(monitorPaneLayout.createSequentialGroup()
+                            .addComponent(addressTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jLabel9)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(portTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(monitorPaneLayout.createSequentialGroup()
+                            .addGap(9, 9, 9)
+                            .addComponent(jLabel8)
+                            .addGap(49, 49, 49)
+                            .addComponent(jLabel10))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(heartBeatButton))
+                .addGap(18, 18, 18)
                 .addGroup(monitorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(monitorPaneLayout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(monitorPaneLayout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         monitorPaneLayout.setVerticalGroup(
@@ -437,21 +458,23 @@ public class Server_GUI extends javax.swing.JFrame {
                             .addComponent(portTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel9)
                             .addComponent(addressTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(80, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(heartBeatButton))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout runningPanelLayout = new javax.swing.GroupLayout(runningPanel);
         runningPanel.setLayout(runningPanelLayout);
         runningPanelLayout.setHorizontalGroup(
             runningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(threadPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(threadPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
             .addComponent(monitorPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         runningPanelLayout.setVerticalGroup(
             runningPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(runningPanelLayout.createSequentialGroup()
-                .addComponent(threadPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(threadPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(monitorPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -462,15 +485,15 @@ public class Server_GUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bodyPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(titlePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(bodyPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(titlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(bodyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(bodyPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -503,6 +526,26 @@ public class Server_GUI extends javax.swing.JFrame {
         model.addRow(row);
     }
     
+    
+    public void blink(){
+        Runnable blinkRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    heartBeatButton.setSelected(true);
+                    Thread.sleep(200);
+                    heartBeatButton.setSelected(false);
+                } catch (InterruptedException ex) {
+                    System.err.println("Error with hearBeat button");
+                    Logger.getLogger(Server_GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+            }    
+        };  
+        Thread blinkThread = new Thread(blinkRunnable);
+        blinkThread.start();
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -529,7 +572,7 @@ public class Server_GUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Server_GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         Server_GUI server_GUI = new Server_GUI();
         server_GUI.setVisible(true);
@@ -545,6 +588,7 @@ public class Server_GUI extends javax.swing.JFrame {
     private javax.swing.JPanel bodyPanel;
     private javax.swing.JTable clientMessageTable;
     private javax.swing.JButton connectButton;
+    public javax.swing.JRadioButton heartBeatButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -557,9 +601,6 @@ public class Server_GUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable monitorMessageTable;
@@ -576,6 +617,9 @@ public class Server_GUI extends javax.swing.JFrame {
     public javax.swing.JLabel t2ProcessingLabel;
     public javax.swing.JLabel t3CountDownLabel;
     public javax.swing.JLabel t3ProcessingLabel;
+    public javax.swing.JPanel thread1Panel;
+    public javax.swing.JPanel thread2Panel;
+    public javax.swing.JPanel thread3Panel;
     private javax.swing.JPanel threadPanel;
     private javax.swing.JTextField threadsTextField;
     private javax.swing.JPanel titlePanel;
