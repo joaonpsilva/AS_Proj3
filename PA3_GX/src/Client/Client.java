@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 class Client{
             
     private Socket clientSocket;
-    private int clientId;
+    public int clientId;
     private int reqIncr = 0;
     private Client_GUI clientUI;
     private DataOutputStream dout;
