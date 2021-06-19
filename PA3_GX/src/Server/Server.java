@@ -30,7 +30,7 @@ class Server{
     private static int serverId;                // server id
     private static int serverport;              // port where the server is running
     private static String avogrado = "6.022141527141592653591415926535914159265359";
-    private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
+    private BlockingQueue<Request> queue = new LinkedBlockingDeque<>(2);
  
     public Server(){
         for (int i = 0; i < 3; i++)
@@ -118,15 +118,18 @@ class Server{
                     System.out.println("Waiting for clients requests");
                     while (true) {  // receive requests and put them in queue
                         Socket client = serverSocket.accept();
-                        System.out.println("New request");
-                        boolean availableSlot = queue.offer(client); // check available slot to handle request
+                        Request req = new Request(client);
+                        req.readReq();
+                        
+                        System.out.println(req.message);
+                        ui.addClientMessage(req.message);
+                        
+                        boolean availableSlot = queue.offer(req); // check available slot to handle request
 
                         if (availableSlot==false){
                             System.out.println("Request Denied - to many requests to handle");
-                            ui.addClientMessage("DENIED|Too many requests");
-                            DataOutputStream dout = new DataOutputStream(client.getOutputStream());
-                            dout.writeUTF("SERVER|DENNIED|0");
-                            dout.flush();
+                            req.dout.writeUTF("SERVER|DENNIED|0");
+                            req.dout.flush();
                         }
                     }
                 } 
@@ -154,17 +157,13 @@ class Server{
             
             while(true){
                 try{
-                    Socket clientSocket = queue.take();
-                    DataInputStream dis=new DataInputStream(clientSocket.getInputStream()); 
-                    DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
-
+                    Request clientRequest = queue.take();
                     
-                    String lbmessage=dis.readUTF().strip();
-                    String message = lbmessage.split("\\|")[1];
+                    String message = clientRequest.message.split("\\|")[1];
                     
                     int iterations = Integer.parseInt(message);
                     System.out.println("Viewing request. Calculating with iterations: " + iterations);
-                    ui.addClientMessage(lbmessage);
+                    
                     stupidChangeColor(new Color(255,204,204), id);
                     updateUI(id, iterations);
 
@@ -175,9 +174,9 @@ class Server{
                     String response = "SERVER|ACCEPTED|" + avogradoIteration;
                     
                     System.out.println(response);
-                    dout.writeUTF(response);
-                    dout.flush();
-                    clientSocket.close();
+                    clientRequest.dout.writeUTF(response);
+                    clientRequest.dout.flush();
+                    clientRequest.socket.close();
 
                 } 
                 catch(Exception e){
