@@ -123,6 +123,7 @@ class Server{
 
                         if (availableSlot==false){
                             System.out.println("Request Denied - to many requests to handle");
+                            ui.addClientMessage("DENIED|Too many requests");
                             DataOutputStream dout = new DataOutputStream(client.getOutputStream());
                             dout.writeUTF("SERVER|DENNIED|0");
                             dout.flush();

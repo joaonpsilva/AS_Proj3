@@ -109,6 +109,7 @@ class LoadBalancer{
                     try{
                         
                         //ASK MONITOR FOR ONLINE SERVERS
+                        rl.lock();
                         String monitorResponse[] =  askServersStatus();
                         
                         //CHOOSE SERVER
@@ -125,14 +126,14 @@ class LoadBalancer{
                         
                         //INFORM MONITOR ABOUT CHOSEN SERVER
                         String monitorMessage = "LOADBALANCER|SENT_REQUEST|"+msg[1]+"|"+msg[2]+"|"+serverId+"|"+msg[4]+"|"+msg[5]+"|"+msg[6];
-                        rl.lock();
                         monitorout.writeUTF(monitorMessage);
-                        monitorout.flush();
-                        rl.unlock();
-                        
+                        monitorout.flush();                        
                     }catch(Exception e){
                         System.out.println("Error connecting with monitor");
                         return;
+                    }
+                    finally {
+                        rl.unlock();
                     }
 
                     
