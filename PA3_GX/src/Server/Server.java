@@ -165,10 +165,13 @@ class Server{
                     int iterations = Integer.parseInt(message);
                     System.out.println("Viewing request. Calculating with iterations: " + iterations);
                     ui.addClientMessage(lbmessage);
+                    stupidChangeColor(new Color(255,204,204), id);
                     updateUI(id, iterations);
 
                     String avogradoIteration = avogrado.substring(0, iterations);
                     Thread.sleep(1000 * iterations);
+                    stupidChangeColor(new Color(204,255,204), id);
+
                     String response = "SERVER|ACCEPTED|" + avogradoIteration;
                     
                     System.out.println(response);
@@ -182,6 +185,20 @@ class Server{
                 }  
             }
         }    
+    }
+    
+    private void stupidChangeColor(Color color, int id){
+        
+        System.out.println(id);
+        if (id == 0){
+            ui.thread1Panel.setBackground(color); // light red color
+        }
+        if (id == 1){
+            ui.thread2Panel.setBackground(color); // light red color
+        }
+        if (id == 2){
+            ui.thread3Panel.setBackground(color); // light red color
+        }
     }
     
     
@@ -198,7 +215,7 @@ class Server{
                 if (id == 0){   // TODO update ids and labels
                     ui.t1ProcessingLabel.setVisible(true);
                     ui.t1CountDownLabel.setVisible(true);
-                    ui.thread1Panel.setBackground(red); // light red color
+                    
                     ui.t1ProcessingLabel.setText("Calculating for " + iterations + " iterations");
                     
                     for (int i = 0; i < iterations; i++){
@@ -210,7 +227,6 @@ class Server{
                         }
                     }
                     ui.t1CountDownLabel.setText("Done");
-                    ui.thread1Panel.setBackground(green);
                     ui.t1ProcessingLabel.setText("IDLE - waiting for requests");
                     try {
                     Thread.sleep(1000);
@@ -223,7 +239,6 @@ class Server{
                 if (id == 1){
                     ui.t2ProcessingLabel.setVisible(true);
                     ui.t2CountDownLabel.setVisible(true);
-                    ui.thread2Panel.setBackground(red); // light red color
                     ui.t2ProcessingLabel.setText("Calculating for " + iterations + " iterations");
 
                     
@@ -236,7 +251,6 @@ class Server{
                         }
                     }
                     ui.t2CountDownLabel.setText("Done");
-                    ui.thread2Panel.setBackground(green);
                     ui.t2ProcessingLabel.setText("IDLE - waiting for requests");
                     try {
                     Thread.sleep(1000);
@@ -249,7 +263,6 @@ class Server{
                 if (id == 2){
                     ui.t3ProcessingLabel.setVisible(true);
                     ui.t3CountDownLabel.setVisible(true);
-                    ui.thread3Panel.setBackground(red); // light red color
                     ui.t3ProcessingLabel.setText("Calculating for " + iterations + " iterations");
                     
                     for (int i = 0; i < iterations; i++){
@@ -261,7 +274,6 @@ class Server{
                         }
                     }
                     ui.t3CountDownLabel.setText("Done");
-                    ui.thread3Panel.setBackground(green);
                     ui.t3ProcessingLabel.setText("IDLE - waiting for requests");
                     try {
                     Thread.sleep(1000);
