@@ -56,7 +56,7 @@ class Client{
         }
     }
     
-    public void sendRequest(String address, int port){
+    public void sendRequestThread(String address, int port){
         
         connect(address, port);
         
@@ -76,6 +76,20 @@ class Client{
                 
         }catch(Exception e){
             Logger.getLogger("ERROR");
-        }
+        } 
+    }
+    
+        
+    public void sendRequest(String address, int port){
+                
+        Runnable clientRequest = new Runnable() {
+            @Override
+            public void run() {
+                sendRequestThread(address, port);
+            }    
+        };  
+        
+        Thread clientThread = new Thread(clientRequest);
+        clientThread.start();
     }
 }

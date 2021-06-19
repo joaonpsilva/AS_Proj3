@@ -155,8 +155,7 @@ class LoadBalancer{
                         System.out.println("Server crashed. Choosing another server");
                         try {
                             Thread.sleep(500);
-                        } catch (InterruptedException ex) {
-                        }
+                        } catch (InterruptedException ex) {}
                         continue;
                     } 
                     
