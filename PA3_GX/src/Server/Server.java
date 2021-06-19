@@ -29,7 +29,7 @@ class Server{
     private Server_GUI ui;
     private static int serverId;                // server id
     private static int serverport;              // port where the server is running
-    private static String avogrado = "6.022141527";
+    private static String avogrado = "6.022141527141592653591415926535914159265359";
     private BlockingQueue<Socket> queue = new LinkedBlockingDeque<>(2);
  
     public Server(){

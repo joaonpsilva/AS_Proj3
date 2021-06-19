@@ -66,13 +66,13 @@ class Client{
             this.reqIncr++;
             
             dout.writeUTF(msg);  
-            dout.flush(); 
-            clientUI.messageStatusLabel.setVisible(true);
+            dout.flush();
+            clientUI.addSentMessage(msg);
 
             //Receive message
             String  receivedMessage = dis.readUTF().strip();
             System.out.println(receivedMessage);
-            clientUI.receivedMessageTextField.setText(receivedMessage);
+            clientUI.addReceivedMessage(receivedMessage);
                 
         }catch(Exception e){
             Logger.getLogger("ERROR");

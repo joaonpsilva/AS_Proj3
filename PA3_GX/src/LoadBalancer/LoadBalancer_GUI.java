@@ -53,7 +53,7 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
 
         titlePanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        titleLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         titleLabel.setText("Load Balancer");
 
         javax.swing.GroupLayout titlePanelLayout = new javax.swing.GroupLayout(titlePanel);
@@ -62,7 +62,7 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
             titlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(titlePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleLabel)
+                .addComponent(titleLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         titlePanelLayout.setVerticalGroup(
@@ -158,7 +158,9 @@ public class LoadBalancer_GUI extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(messageTable);
         if (messageTable.getColumnModel().getColumnCount() > 0) {
-            messageTable.getColumnModel().getColumn(0).setMaxWidth(80);
+            messageTable.getColumnModel().getColumn(0).setMinWidth(100);
+            messageTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            messageTable.getColumnModel().getColumn(0).setMaxWidth(100);
         }
 
         javax.swing.GroupLayout runPanelLayout = new javax.swing.GroupLayout(runPanel);
