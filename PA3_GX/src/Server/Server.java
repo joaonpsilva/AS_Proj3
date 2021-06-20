@@ -31,19 +31,12 @@ class Server{
     private static int serverport;              // port where the server is running
     private static String avogrado = "6.022141527141592653591415926535914159265359";
     private BlockingQueue<Request> queue = new LinkedBlockingDeque<>(2);
- 
-    public Server(){
-        for (int i = 0; i < 3; i++)
-            //new ServerThread().start();
-            new ServerThread(i).start();
-    }
+
     
     public Server(Server_GUI ui){
         this.ui = ui;
         
     }
-    
-    
     
     // Connect to monitor and LB and listen to monitor heart beats
     public void connect(int port, int threads){

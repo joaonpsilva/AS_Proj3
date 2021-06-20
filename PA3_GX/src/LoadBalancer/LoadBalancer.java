@@ -120,6 +120,8 @@ class LoadBalancer{
                         
                         if (serverId==-1){
                             System.out.println("Zero servers connected");
+                            dout.writeUTF("LOADBALANCER|ZERO SERVERS");
+                            dout.flush();
                             this.clientSocket.close();
                             return;
                         }
